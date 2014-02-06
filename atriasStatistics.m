@@ -66,8 +66,17 @@ end
 %plot(nLApex,a.Kinematics.position(nLApex,2),'*g')
 
 % Mean and standard deviation
+stats.yLApexMean = mean(yLApex);
+stats.yLApexStd  = std(yLApex);
+stats.yRApexMean = mean(yRApex);
+stats.yRApexStd  = std(yRApex);
 stats.yApexMean = mean([yLApex yRApex]);
 stats.yApexStd  = std([yLApex yRApex]);
+
+stats.vLApexMean = mean(vLApex);
+stats.vLApexStd  = std(vLApex);
+stats.vRApexMean = mean(vRApex);
+stats.vRApexStd  = std(vRApex);
 stats.vApexMean = mean([vLApex vRApex]);
 stats.vApexStd  = std([vLApex vRApex]);
 
