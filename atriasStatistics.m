@@ -90,5 +90,8 @@ stats.fyLMaxStd = std(fyLMax);
 stats.fyRMaxStd = std(fyRMax);
 
 
-% Find the duty cycle
-
+%% Find the duty cycle
+% stance == TD -> TO
+% flight == TO -> TD
+% TODO: This isn't quite right
+a.Timing.rto - a.Timing.rtd
