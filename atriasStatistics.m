@@ -4,10 +4,12 @@
 %   apex height
 %   apex velocity
 
+% Remove old stats
+clear stats
 
 % Open the data
 %a = analyseATRIAS;
-load('atrias_2014-02-03-19-57-30-analyzeATRIAS-long')
+%load('atrias_2014-02-03-19-57-30-analyzeATRIAS-long')
 
 %% Find the apex height and velocity
 % Apex occurs during single support
@@ -82,16 +84,76 @@ for n = 1:(length(nRApex)-1)
     fyRMax(n) = min(a.Dynamics.Fy(nRApex(n):nRApex(n+1),2));
 end
 % This should not be negative
-stats.fyLMax = -fyLMax;
-stats.fyRMax = -fyRMax;
+fyLMax = -fyLMax;
+fyRMax = -fyRMax;
+% Compile Statistics
 stats.fyLMaxMean = mean(fyLMax);
 stats.fyRMaxMean = mean(fyRMax);
 stats.fyLMaxStd = std(fyLMax);
 stats.fyRMaxStd = std(fyRMax);
 
-
 %% Find the duty cycle
 % stance == TD -> TO
 % flight == TO -> TD
-% TODO: This isn't quite right
-a.Timing.rto - a.Timing.rtd
+
+% Right leg
+% Order the transitions
+rightTransitions = sort([a.Timing.rto; a.Timing.rtd]);
+% Get the time durations
+rightDurations = diff(a.Timing.Time(rightTransitions));
+
+% Stance or flight first?
+if a.Timing.rto(1) < a.Timing.rtd(1)
+    % Flight first
+    rightFlightDurations = rightDurations(1:2:end);
+    rightStanceDurations = rightDurations(2:2:end);
+else
+    % Stance first
+    rightFlightDurations = rightDurations(2:2:end);
+    rightStanceDurations = rightDurations(1:2:end);
+end
+
+% Find the shorter vector
+if length(rightFlightDurations) > length(rightStanceDurations)
+    n = length(rightStanceDurations);
+else
+    n = length(rightFlightDurations);
+end
+
+% Duty cycle
+rightDutyCycle = rightStanceDurations(1:n)./...
+                (rightStanceDurations(1:n)+rightFlightDurations(1:n));
+
+% Left leg
+% Order the transitions
+leftTransitions = sort([a.Timing.lto; a.Timing.ltd]);
+% Get the time durations
+leftDurations = diff(a.Timing.Time(leftTransitions));
+
+% Stance or flight first?
+if a.Timing.lto(1) < a.Timing.ltd(1)
+    % Flight first
+    leftFlightDurations = leftDurations(1:2:end);
+    leftStanceDurations = leftDurations(2:2:end);
+else
+    % Stance first
+    leftFlightDurations = leftDurations(2:2:end);
+    leftStanceDurations = leftDurations(1:2:end);
+end
+
+% Find the shorter vector
+if length(leftFlightDurations) > length(leftStanceDurations)
+    n = length(leftStanceDurations);
+else
+    n = length(leftFlightDurations);
+end
+
+% Duty cycle
+leftDutyCycle = leftStanceDurations(1:n)./...
+                (leftStanceDurations(1:n)+leftFlightDurations(1:n));
+
+% Compile statistics
+stats.lDutyCycleMean = mean(leftDutyCycle);
+stats.lDutyCycleStd  = std(leftDutyCycle);
+stats.rDutyCycleMean = mean(rightDutyCycle);
+stats.rDutyCycleStd  = std(rightDutyCycle);
