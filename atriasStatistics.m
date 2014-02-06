@@ -88,9 +88,12 @@ fyLMax = -fyLMax;
 fyRMax = -fyRMax;
 % Compile Statistics
 stats.fyLMaxMean = mean(fyLMax);
+stats.fyLMaxStd  = std(fyLMax);
 stats.fyRMaxMean = mean(fyRMax);
-stats.fyLMaxStd = std(fyLMax);
-stats.fyRMaxStd = std(fyRMax);
+stats.fyRMaxStd  = std(fyRMax);
+stats.fyMaxMean  = mean([fyLMax fyRMax]);
+stats.fyMaxStd   = std([fyLMax fyRMax]);
+
 
 %% Find the duty cycle
 % stance == TD -> TO
@@ -157,3 +160,5 @@ stats.lDutyCycleMean = mean(leftDutyCycle);
 stats.lDutyCycleStd  = std(leftDutyCycle);
 stats.rDutyCycleMean = mean(rightDutyCycle);
 stats.rDutyCycleStd  = std(rightDutyCycle);
+stats.DutyCycleMean  = mean([leftDutyCycle rightDutyCycle]);
+stats.DutyCycleStd   = std([leftDutyCycle rightDutyCycle]);
