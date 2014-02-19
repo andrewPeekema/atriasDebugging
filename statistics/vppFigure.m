@@ -27,8 +27,10 @@ for leg = [1 2] % left and right legs
         n1 = td(n);
         n2 = to(n+offset);
         % The leg angle and length w.r.t. the torso
-        ql = a.Kinematics.legAngles(n1:n2,leg);  % TODO: check left-right convention
+        ql = a.Kinematics.legAngles(n1:n2,leg);
         rl = a.Kinematics.legLength(n1:n2,leg);
+
+        % Applied forces
         % Axial and tangential force
         aF = a.Dynamics.axLegForce(n1:n2,leg);
         tF = a.Dynamics.tanLegForce(n1:n2,leg);
@@ -44,7 +46,27 @@ for leg = [1 2] % left and right legs
         y2 = y1 + F.*sin(ql-qF)*scaleF;
 
         % Plot each force vector
-        for fn = 1:50:size(x1)
+        for fn = 1:30:size(x1)
+            plot([x1(fn) x2(fn)],[y1(fn) y2(fn)])
+        end
+
+        % Desired forces
+        % Axial and tangential force
+        aF = 
+        tF = 
+        % Force angle and magnitude
+        qF = tan(tF./aF);
+        F  = hypot(aF,tF);
+        % Foot points in torso coordinates
+        x1 =  rl.*cos(ql);
+        y1 = -rl.*sin(ql);
+        % Force vectors from foot points in torso coordinates
+        scaleF = 3/1000;
+        x2 = x1 - F.*cos(ql-qF)*scaleF;
+        y2 = y1 + F.*sin(ql-qF)*scaleF;
+
+        % Plot each force vector
+        for fn = 1:30:size(x1)
             plot([x1(fn) x2(fn)],[y1(fn) y2(fn)])
         end
     end
