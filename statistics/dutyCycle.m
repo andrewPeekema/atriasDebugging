@@ -33,7 +33,7 @@ for n = 1:(length(a.Timing.ltd)-offset)
     t1 = a.Timing.lto(n);
     t2 = a.Timing.ltd(n+offset);
     % Vertical leg orientation is at pi/2
-    tmp = abs(a.Kinematics.legAngles(t1:t2,2)-pi/2);
+    tmp = abs(a.Kinematics.legAngles(t1:t2,1)-pi/2);
     [~,tmpN] = min(tmp);
     % Index
     nLApex(n) = tmpN + t1;
