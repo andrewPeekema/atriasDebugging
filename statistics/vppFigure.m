@@ -1,8 +1,12 @@
-% Find:
 function vppFigure(a)
 % Plot the experimental VPP
 % Input:
 %   a: an ATRIASanalysis class
+
+% Check for input
+if ~exist('a')
+    error('An ATRIASanalysis input variable is needed')
+end
 
 % Cleanup
 clc
@@ -19,10 +23,10 @@ for leg = [1 2] % left and right legs
     axis equal
 
     % Determine timing offset
-    [td to offset] = timingAndOffset(leg);
+    [td to offset stanceOffset] = timingAndOffset(leg);
 
     % For each stance phase
-    for n = 1:(length(td)-offset)
+    for n = 1:(length(td)-offset-stanceOffset)
         % Start and end indicies of a stance phase
         n1 = td(n);
         n2 = to(n+offset);
@@ -35,7 +39,7 @@ for leg = [1 2] % left and right legs
         aF = a.Dynamics.axLegForce(n1:n2,leg);
         tF = a.Dynamics.tanLegForce(n1:n2,leg);
         % Force angle and magnitude
-        qF = tan(tF./aF);
+        qF = atan(tF./aF);
         F  = hypot(aF,tF);
         % Foot points in torso coordinates
         x1 =  rl.*cos(ql);
@@ -47,28 +51,34 @@ for leg = [1 2] % left and right legs
 
         % Plot each force vector
         for fn = 1:30:size(x1)
-            plot([x1(fn) x2(fn)],[y1(fn) y2(fn)])
+            p(1) = plot([x1(fn) x2(fn)],[y1(fn) y2(fn)]);
         end
 
         % Desired forces
-        % Axial and tangential force
-        aF = 
-        tF = 
-        % Force angle and magnitude
-        qF = tan(tF./aF);
-        F  = hypot(aF,tF);
-        % Foot points in torso coordinates
-        x1 =  rl.*cos(ql);
-        y1 = -rl.*sin(ql);
+        Fx = -a.ControllerData.controlFx((n1:n2),leg);
+        Fz = -a.ControllerData.controlFz((n1:n2),leg);
+        % Body pitch from vertical
+        qB = a.Kinematics.bodyPitch(n1:n2,1) - 3*pi/2;
+        % Force angle and magnitude (global)
+        qF = atan(Fz./Fx);
+        % Correct quadrant issue
+        for n = 1:length(qF)
+            if qF(n) < 0
+                qF(n) = pi + qF(n);
+            end
+        end
+        F = hypot(Fx,Fz);
         % Force vectors from foot points in torso coordinates
-        scaleF = 3/1000;
-        x2 = x1 - F.*cos(ql-qF)*scaleF;
-        y2 = y1 + F.*sin(ql-qF)*scaleF;
+        x2 = x1 + F.*cos(qF+qB)*scaleF;
+        y2 = y1 + F.*sin(qF+qB)*scaleF;
 
         % Plot each force vector
         for fn = 1:30:size(x1)
-            plot([x1(fn) x2(fn)],[y1(fn) y2(fn)])
+            p(2) = plot([x1(fn) x2(fn)],[y1(fn) y2(fn)],'g');
         end
+
+        % Plot the first footpoint
+        plot(x1(1),y1(1),'r.')
     end
 
     % Torso
@@ -80,17 +90,26 @@ for leg = [1 2] % left and right legs
     plot(x,y,'--k')
     % Center of Mass
     rcom = 0.15;
-    plot(0,rcom,'.g','MarkerSize',30)
+    p(3) = plot(0,rcom,'.k','MarkerSize',40);
     % Virtual Pivot Point
     x = -a.ControllerData.rvpp(end)*sin(a.ControllerData.qvpp(end));
     y = rcom + a.ControllerData.rvpp(end)*cos(a.ControllerData.qvpp(end));
-    plot(x,y,'.r','MarkerSize',30)
+    p(4) = plot(x,y,'.r','MarkerSize',40);
+
+    % Plot options
+    title('Virtual Pivot Point')
+    xlabel('Distance (m)')
+    ylabel('Distance (m)')
+    ylim([-1 1.4])
 
 end % for leg
 
+% Labeling
+legend(p,'Applied Force','Desired Force','CoM','VPP','Location','Best')
+
 
 % Time touchdown and takeoff correctly
-function [td to offset] = timingAndOffset(leg)
+function [td to offset stanceOffset] = timingAndOffset(leg)
     if leg == 1 % left leg
         td = a.Timing.ltd;
         to = a.Timing.lto;
@@ -106,6 +125,13 @@ function [td to offset] = timingAndOffset(leg)
     else
         % Touchdown first
         offset = 1;
+    end
+
+    % If there are more touchdowns than takeoffs
+    if length(td) > length(to)
+        stanceOffset = 1;
+    else
+        stanceOffset = 0;
     end
 end % timingAndOffset
 
