@@ -21,30 +21,36 @@ xlabel('Time (s)')
 ylabel('Force (N)')
 ylim([-200 700])
 
-% Find all forces
-Fx = -a.Dynamics.Fx(:,1:2);
-Fz = -a.Dynamics.Fy(:,1:2);
-
-% Get the time (s)
-t = a.Timing.Time/1000;
-
-
-% For each event, search forward and backward
-% for first zero crossing.  Use that index as the takeoff or touchdown.
 
 
 for leg = [1 2] % left and right legs
     % Determine timing offset
     [td to offset stanceOffset] = timingAndOffset(leg);
 
+    % Get the time (s)
+    t = a.Timing.Time/1000;
+    % Find all forces
+    Fz = -a.Dynamics.Fy(:,1:2);
+    % Find force zero crossings
+    fZero = [abs(diff(Fz(:,leg) > 0)); 0];
+    % Turn it into a logical
+    fZero = fZero > 0;
+
     % For each stance phase
     for n = 1:(length(td)-offset-stanceOffset)
-        % Find stance and flight triggers
-        % TODO: Search forwards
-
-        % Start and end indicies of a stance phase
+        % Controller start and end indicies of a stance phase
         n1 = td(n);
         n2 = to(n+offset);
+
+        % Touchdown
+        % Shift by .1 seconds forward, and then search for the
+        % last zero crossing
+        n1 = find(fZero(1:n1+100),1,'last');
+
+        % Takeoff
+        % Shift by .1 seconds backwards, and then search for the
+        % first zero crossing
+        n2 = n1 + 100 + find(fZero(n1+100:n2+100),1,'first');
 
         % The time
         t = a.Timing.Time(n1:n2)/1000;
