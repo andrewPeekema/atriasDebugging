@@ -19,10 +19,10 @@ figure
 % Gait parameters for the SLIP walk paper gait
 r0 = 0.9;   % m
 rRet = 0.15; % m
-q1 = 1.144; % rad
-q2 = 1.297; % rad
-q3 = 1.845; % rad
-q4 = 1.998; % rad
+q1 = a.ControllerData.q1(1); % rad
+q2 = a.ControllerData.q2(1); % rad
+q3 = a.ControllerData.q3(1); % rad
+q4 = a.ControllerData.q4(1); % rad
 
 % Fake a stance phase
 qSl = linspace(q2,q3,50);
