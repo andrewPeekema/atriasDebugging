@@ -19,7 +19,14 @@ grid on
 title('Ground Reaction Forces')
 xlabel('Time (s)')
 ylabel('Force (N)')
-ylim([-200 700])
+ylim([-200 690])
+
+% The range of values to plot
+xStart = 92.23;
+xEnd   = 93.95;
+%xStart = a.Timing.Time(1)/1000;
+%xEnd = a.Timing.Time(end)/1000;
+xlim([0 xEnd-xStart])
 
 
 
@@ -27,8 +34,6 @@ for leg = [1 2] % left and right legs
     % Determine timing offset
     [td to offset stanceOffset] = timingAndOffset(leg);
 
-    % Get the time (s)
-    t = a.Timing.Time/1000;
     % Find all forces
     Fz = -a.Dynamics.Fy(:,1:2);
     % Find force zero crossings
@@ -41,6 +46,16 @@ for leg = [1 2] % left and right legs
         % Controller start and end indicies of a stance phase
         n1 = td(n);
         n2 = to(n+offset);
+
+        % If takeoff is before the start index
+        if a.Timing.Time(n2) < xStart*1000
+            % Skip this iteration
+            continue
+        % If touchdown is beyond the end index
+        elseif a.Timing.Time(n1) > xEnd*1000
+            % Skip this iteration
+            continue
+        end
 
         % Touchdown
         % Shift by .1 seconds forward, and then search for the
@@ -64,8 +79,8 @@ for leg = [1 2] % left and right legs
         Fz = -Fz;
 
         % Plot the forces
-        plot(t,Fx,'r')
-        plot(t,Fz,'b')
+        plot(t-xStart,Fx,'r')
+        plot(t-xStart,Fz,'b')
     end
 end % for leg
 
