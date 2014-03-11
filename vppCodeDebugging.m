@@ -10,8 +10,12 @@ qb   = a.Kinematics.bodyPitch(:,legN);
 qSl  = a.Kinematics.legAngles(:,legN);
 rSl  = a.Kinematics.legLength(:,legN);
 rcom = 0.12; % m
-rvpp = a.ControllerData.rvpp(1,1);
-qvpp = a.ControllerData.qvpp(1,1);
+rvpp = a.ControllerData.rvpp(end,1);
+qvpp = a.ControllerData.qvpp(end,1);
+
+% Look into the velocities
+dqb  = a.Kinematics.bodyPitchVelocity(:,legN);
+dqS  = a.Kinematics.segmentVelocity;
 
 % VPP control
 % Find qSl and qT in terms of ATRIAS parameters
@@ -27,4 +31,13 @@ C2 = (rvpp.^2 + C1.^2 - 2*rvpp.*C1.*cos(alpha2)).^0.5;
 theta2 = asin(rvpp./C2.*sin(alpha2));
 q = theta1 + theta2;
 
-plot(q)
+
+% Put the data in context with the control signal
+plot(q,'r.')
+hold on
+plot(a.ControllerData.q,'b.')
+
+
+% TODO: Plot the axial leg force
+fa = legForce(rSl,0.9);
+% TODO: Plot the controller axial leg force
