@@ -11,6 +11,6 @@ L2 = 0.5; % m
 ks = 1600; % N*m/rad
 
 % Resulting axial leg force
-force =  -(ks*(acos(r0) - acos(r)).*(L1 + L2))/(2*L1*L2*(1-r.^2).^0.5);
+force =  -(ks*(acos(r0) - acos(r)).*(L1 + L2))./(2*L1*L2*(1-r.^2).^0.5);
 
 end

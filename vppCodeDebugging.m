@@ -33,11 +33,21 @@ q = theta1 + theta2;
 
 
 % Put the data in context with the control signal
-plot(q,'r.')
+%plot(q,'r.')
+%hold on
+%plot(a.ControllerData.q,'b.')
+
+
+% Plot the desired vs actual leg force
+leg=1;
+% Desired force
+controlF = hypot(a.ControllerData.controlFx(:,leg),a.ControllerData.controlFz(:,leg));
+% Computed force
+computeF = hypot(a.ControllerData.computeFx(:,leg),a.ControllerData.computeFz(:,leg));
+plot(controlF,'r.')
 hold on
-plot(a.ControllerData.q,'b.')
-
-
-% TODO: Plot the axial leg force
-fa = legForce(rSl,0.9);
-% TODO: Plot the controller axial leg force
+plot(computeF,'.b')
+% Control error
+plot(controlF-computeF,'r.')
+% Motor current
+plot(a.Electrics.motorCurrent(:,1:2),'.g')

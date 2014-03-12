@@ -22,10 +22,10 @@ ylabel('Force (N)')
 ylim([-200 690])
 
 % The range of values to plot
-xStart = 92.23;
-xEnd   = 93.95;
-%xStart = a.Timing.Time(1)/1000;
-%xEnd = a.Timing.Time(end)/1000;
+%xStart = 92.23;
+%xEnd   = 93.95;
+xStart = a.Timing.Time(1)/1000;
+xEnd = a.Timing.Time(end)/1000;
 xlim([0 xEnd-xStart])
 
 
