@@ -9,11 +9,11 @@ rLl_leg   = cos((v_log__robot__state_lALegAngle-v_log__robot__state_lBLegAngle)/
 
 % Plot
 figure
-plot(rLl_rotor)
+plot(rLl_rotor,'.')
 hold on
-plot(rLl_motor)
-plot(rLl_leg,'-')
+plot(rLl_motor,'.')
+plot(rLl_leg,'.-')
 
-plot(rRl_motor,'r')
-plot(rRl_rotor,'r')
+plot(rRl_motor,'.r')
+plot(rRl_rotor,'.r')
 plot(rRl_leg,'-r')

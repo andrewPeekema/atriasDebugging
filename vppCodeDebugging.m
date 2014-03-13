@@ -39,7 +39,7 @@ q = theta1 + theta2;
 
 
 % Plot the desired vs actual leg force
-leg=1;
+leg=2;
 % Desired force
 controlF = hypot(a.ControllerData.controlFx(:,leg),a.ControllerData.controlFz(:,leg));
 % Computed force
@@ -47,7 +47,7 @@ computeF = hypot(a.ControllerData.computeFx(:,leg),a.ControllerData.computeFz(:,
 plot(controlF,'r.')
 hold on
 plot(computeF,'.b')
-% Control error
-plot(controlF-computeF,'r.')
+% Percent control error
+plot((controlF-computeF)./controlF*100,'r.')
 % Motor current
-plot(a.Electrics.motorCurrent(:,1:2),'.g')
+plot(a.Electrics.motorCurrent(:,leg*(1:2)),'.g')
