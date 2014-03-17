@@ -65,7 +65,11 @@ for leg = [1 2] % left and right legs
         % Takeoff
         % Shift by .1 seconds backwards, and then search for the
         % first zero crossing
-        n2 = n1 + 100 + find(fZero(n1+100:n2+100),1,'first');
+        n2 = n2+100;
+        if size(fZero,1) < n2
+            n2 = size(fZero,1);
+        end
+        n2 = n1 + 100 + find(fZero(n1+100:n2),1,'first');
 
         % The time
         t = a.Timing.Time(n1:n2)/1000;
