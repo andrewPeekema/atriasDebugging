@@ -7,13 +7,22 @@ rLl_motor = cos((v_log__robot__state_lAMotorAngle-v_log__robot__state_lBMotorAng
 rRl_leg   = cos((v_log__robot__state_rALegAngle-v_log__robot__state_rBLegAngle)/2);
 rLl_leg   = cos((v_log__robot__state_lALegAngle-v_log__robot__state_lBLegAngle)/2);
 
+% Get times
+time = v_log__robot__state___time;
+
 % Plot
 figure
-plot(rLl_rotor,'.')
+plot(time,rLl_rotor,'.r')
 hold on
-plot(rLl_motor,'.')
-plot(rLl_leg,'.-')
+plot(time,rLl_motor,'.g')
+plot(time,rLl_leg,'.b')
 
-plot(rRl_motor,'.r')
-plot(rRl_rotor,'.r')
-plot(rRl_leg,'-r')
+plot(time,rRl_rotor,'-r')
+plot(time,rRl_motor,'-g')
+plot(time,rRl_leg,'-b')
+
+% Labels
+title('Leg lengths')
+xlabel('Time (s)')
+ylabel('Length (m)')
+legend('Left Rotor','Left Motor','Left Leg','Right Rotor','Right Motor','Right Leg')
