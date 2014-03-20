@@ -10,7 +10,8 @@ electricalPower = voltage*current;
 
 % Mechanical Power
 torqueConstant = 0.121;
-motorVelocity  = v_log__robot__state_rBMotorVelocity;
+gearRatio      = 50;
+motorVelocity  = gearRatio*v_log__robot__state_rBMotorVelocity;
 motorTorque = torqueConstant*v_log__robot__state_rBClampedCmd;
 mechPower   = motorVelocity.*motorTorque;
 
@@ -22,4 +23,4 @@ powerLoss = (motorTorque/km).^2; % w
 plot(electricalPower,'b.')
 hold on
 plot(mechPower,'r.')
-plot(powerLoss,'g.')
+%plot(powerLoss,'g.')
