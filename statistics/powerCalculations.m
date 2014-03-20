@@ -5,7 +5,7 @@ clc
 % With the sine wave controller, right leg B moves
 % Electrical Power
 voltage = 12*3; % V
-current = (0.5+v_log__robot__state_currentPositive)*-1; % A
+current = v_log__robot__state_currentPositive; % A
 electricalPower = voltage*current;
 
 % Mechanical Power
@@ -24,3 +24,8 @@ plot(electricalPower,'b.')
 hold on
 plot(mechPower,'r.')
 %plot(powerLoss,'g.')
+
+title('Positive System Power')
+xlabel('Time (ms)')
+ylabel('Power (w)')
+legend('Electrical Power','Mechanical Power')
