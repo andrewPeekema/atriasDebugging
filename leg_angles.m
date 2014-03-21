@@ -2,8 +2,9 @@
 % For debugging purposes
 % Author: Andrew Peekema
 
-% Import data
-%load('atrias_2014-01-25-19-23-19.mat')
+% Cleanup
+close all
+clc
 
 % Plot commanded currents
 lBCmd = v_log__robot__state_lBClampedCmd;
@@ -48,7 +49,7 @@ plot(q3*len,'g-')
 
 % Find events
 event = diff(double(v_ATCSlipWalking__log_walkingState));
-for n = 1:(length(qLl_rotor)-1)
+for n = 1:(length(event)-1)
     % Right leg SS -> DS
     if event(n) == 1
         plot(n,qRl_leg(n),'c*','MarkerSize', 12)
