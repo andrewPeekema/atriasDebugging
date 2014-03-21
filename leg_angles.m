@@ -27,6 +27,15 @@ qLl_motor = (v_log__robot__state_lAMotorAngle+v_log__robot__state_lBMotorAngle)/
 qRl_leg   = (v_log__robot__state_rALegAngle+v_log__robot__state_rBLegAngle)/2;
 qLl_leg   = (v_log__robot__state_lALegAngle+v_log__robot__state_lBLegAngle)/2;
 
+% Translate to world coordinates
+bodyPitch = v_log__robot__state_bodyPitch - 3*pi/2;
+qLl_rotor = qLl_rotor + bodyPitch;
+qRl_rotor = qRl_rotor + bodyPitch;
+qRl_motor = qRl_motor + bodyPitch;
+qLl_motor = qLl_motor + bodyPitch;
+qRl_leg   = qRl_leg + bodyPitch;
+qLl_leg   = qLl_leg + bodyPitch;
+
 % Plot
 figure
 plot(qLl_rotor)
@@ -47,20 +56,28 @@ plot(q1*len,'g-')
 plot(q2*len,'g-')
 plot(q3*len,'g-')
 
+xlabel('Samples (ms)')
+ylabel('Angle (rad)')
+title('Rotor, Motor, and Leg angles in World Coordinates')
+
 % Find events
 event = diff(double(v_ATCSlipWalking__log_walkingState));
 for n = 1:(length(event)-1)
     % Right leg SS -> DS
     if event(n) == 1
+        plot(n,qLl_leg(n),'c*','MarkerSize', 12)
         plot(n,qRl_leg(n),'c*','MarkerSize', 12)
     % DS -> Left leg SS
     elseif event(n) == 2
         plot(n,qLl_leg(n),'k*','MarkerSize', 12)
+        plot(n,qRl_leg(n),'k*','MarkerSize', 12)
     % Left leg SS -> DS
     elseif event(n) == 3
         plot(n,qLl_leg(n),'c*','MarkerSize', 12)
+        plot(n,qRl_leg(n),'c*','MarkerSize', 12)
     % DS -> Right leg SS
     elseif event(n) == -6
+        plot(n,qLl_leg(n),'k*','MarkerSize', 12)
         plot(n,qRl_leg(n),'k*','MarkerSize', 12)
     end % if event
 end % for n
