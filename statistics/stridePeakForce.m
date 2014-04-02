@@ -60,3 +60,5 @@ stats.fyRMaxMean = mean(fyRMax);
 stats.fyRMaxStd  = std(fyRMax);
 stats.fyMaxMean  = mean([fyLMax fyRMax]);
 stats.fyMaxStd   = std([fyLMax fyRMax]);
+
+display(stats)
