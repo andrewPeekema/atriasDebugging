@@ -2,52 +2,29 @@
 clc
 close all
 
-display('Warning: This calculation is only valid with the')
-display('atrias_2014-03-20-12-22-47-analyzeATRIAS.mat dataset')
-
 % Cost of Transport = Power / (Velocity*mass*gravity)
 % Robot constants
 m = 60; % kg
 g = 9.81; % m/s^2
 
-% Average Power (from oscilloscope)
-% From 6th to 15th z-axis peak
-% Power average for 2 seconds after 6th z-axis peak
-PStart = 608.4; % W
-PMax = 609.3; % W
-% Power right before stopping
-PFall = 451.3; % W
+% Power
+supplyCurrent = a.Electrics.measuredCurrent(:,1); % (A)
+supplyVoltage = a.Electrics.lHipMotorVoltage;     % (V)
+power = supplyCurrent.*supplyVoltage;               % (W)
 
-% Low pass filter the forward velocity
-% Remove NaNs
-xVelIndex = isfinite(a.Kinematics.velocity(:,1));
-xVel = a.Kinematics.velocity(xVelIndex,1);
-% Apply a second order butterworth filter
-[B A] = butter(2,30/1000); % 30 Hz / 1000 Hz
-filtXVel = filtfilt(B,A,xVel);
+% Cost of Transport
+xVelocity = a.Kinematics.velocity(:,1);
+CoT = power./(xVelocity*m*g);
 
-% Average the forward velocity over 2 seconds
-if length(filtXVel) > 2000
-    N = 1:(length(filtXVel)-2000);
-else
-    error('Data is too short')
-end
+% Statistics
+cotAvg = mean(CoT);
 
-avgXVel = NaN(length(N),1);
-for n = N
-    avgXVel(n) = mean(filtXVel(n:n+2000));
-end
+% What does it look like?
+plot(CoT,'.')
+hold on
+plot(ones(1,length(CoT))*cotAvg,'r')
 
-% Debug
-%plot(avgXVel,'.r')
-%hold on
-%plot(filtXVel,'.b')
-
-% Conservative: Take the minimum velocity and maximum power
-V = min(avgXVel);
-conservativeCoT = PMax/(V*m*g);
-display(conservativeCoT)
-% Best Guess: Start velocity and start power
-V = avgXVel(1);
-bestGuessCoT = PStart/(V*m*g);
-display(bestGuessCoT)
+title('Cost of Transport Over Time')
+xlabel('Sample Number (Unitless)')
+ylabel('Cost of Transport (Unitless)')
+legend('Instantaneous CoT','Average CoT')
