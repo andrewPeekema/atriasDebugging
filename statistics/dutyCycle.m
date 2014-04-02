@@ -106,3 +106,5 @@ stats.rDutyCycleMean = mean(rightDutyCycle);
 stats.rDutyCycleStd  = std(rightDutyCycle);
 stats.DutyCycleMean  = mean([leftDutyCycle rightDutyCycle]);
 stats.DutyCycleStd   = std([leftDutyCycle rightDutyCycle]);
+
+display(stats)

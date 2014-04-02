@@ -34,3 +34,5 @@ stats.q1      = a.ControllerData.q1(1,1);
 stats.q2      = a.ControllerData.q2(1,1);
 stats.q3      = a.ControllerData.q3(1,1);
 stats.q4      = a.ControllerData.q4(1,1);
+
+display(stats)

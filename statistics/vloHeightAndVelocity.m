@@ -73,3 +73,5 @@ stats.vRApexMean = mean(vRApex);
 stats.vRApexStd  = std(vRApex);
 stats.vApexMean = mean([vLApex vRApex]);
 stats.vApexStd  = std([vLApex vRApex]);
+
+display(stats)
