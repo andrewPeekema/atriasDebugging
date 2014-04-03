@@ -43,5 +43,5 @@ end
 
 % Display the data
 plot(toe,'.b')
-hold on
-plot(toeRoll,'.r')
+%hold on
+%plot(toeRoll,'.r')
