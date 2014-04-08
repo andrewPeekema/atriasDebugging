@@ -11,18 +11,18 @@ rRl_leg   = cos((v_log__robot__state_rALegAngle-v_log__robot__state_rBLegAngle)/
 rLl_leg   = cos((v_log__robot__state_lALegAngle-v_log__robot__state_lBLegAngle)/2);
 
 % Get times
-time = v_log__robot__state___time;
+rsTime = v_log__robot__state___time;
 
 % Plot
 figure
-plot(time,rLl_rotor,'.r')
+plot(rsTime,rLl_rotor,'.r')
 hold on
-plot(time,rLl_motor,'.g')
-plot(time,rLl_leg,'.b')
+plot(rsTime,rLl_motor,'.g')
+plot(rsTime,rLl_leg,'.b')
 
-plot(time,rRl_rotor,'-r')
-plot(time,rRl_motor,'-g')
-plot(time,rRl_leg,'-b')
+plot(rsTime,rRl_rotor,'-r')
+plot(rsTime,rRl_motor,'-g')
+plot(rsTime,rRl_leg,'-b')
 
 % Labels
 title('Leg lengths')
@@ -32,23 +32,31 @@ legend('Left Rotor','Left Motor','Left Leg','Right Rotor','Right Motor','Right L
 
 
 % Find events
+logTime = v_ATCSlipWalking__log___time;
 event = diff(double(v_ATCSlipWalking__log_walkingState));
 for n = 1:(length(event)-1)
+    % If there is an event
+    if event(n) ~= 0
+        % Find the robot state index for this log time
+        rsN = find(logTime(n) == rsTime,1,'last');
+    end
+
+    % Each type of event
     % Right leg SS -> DS
     if event(n) == 1
-        plot(time(n),rRl_leg(n),'c*','MarkerSize', 12)
-        plot(time(n),rLl_leg(n),'c*','MarkerSize', 12)
+        plot(logTime(n),rRl_leg(rsN),'c*','MarkerSize', 12)
+        plot(logTime(n),rLl_leg(rsN),'c*','MarkerSize', 12)
     % DS -> Left leg SS
     elseif event(n) == 2
-        plot(time(n),rRl_leg(n),'k*','MarkerSize', 12)
-        plot(time(n),rLl_leg(n),'k*','MarkerSize', 12)
+        plot(logTime(n),rRl_leg(rsN),'k*','MarkerSize', 12)
+        plot(logTime(n),rLl_leg(rsN),'k*','MarkerSize', 12)
     % Left leg SS -> DS
     elseif event(n) == 3
-        plot(time(n),rRl_leg(n),'c*','MarkerSize', 12)
-        plot(time(n),rLl_leg(n),'c*','MarkerSize', 12)
+        plot(logTime(n),rRl_leg(rsN),'c*','MarkerSize', 12)
+        plot(logTime(n),rLl_leg(rsN),'c*','MarkerSize', 12)
     % DS -> Right leg SS
     elseif event(n) == -6
-        plot(time(n),rRl_leg(n),'k*','MarkerSize', 12)
-        plot(time(n),rLl_leg(n),'k*','MarkerSize', 12)
+        plot(logTime(n),rRl_leg(rsN),'k*','MarkerSize', 12)
+        plot(logTime(n),rLl_leg(rsN),'k*','MarkerSize', 12)
     end % if event
 end % for n

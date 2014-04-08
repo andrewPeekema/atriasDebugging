@@ -36,48 +36,59 @@ qLl_motor = qLl_motor + bodyPitch;
 qRl_leg   = qRl_leg + bodyPitch;
 qLl_leg   = qLl_leg + bodyPitch;
 
+% Get times
+rsTime = v_log__robot__state___time;
+
 % Plot
 figure
-plot(qLl_rotor)
+plot(rsTime,qLl_rotor)
 hold on
-plot(qLl_motor)
-plot(qLl_leg,'-')
+plot(rsTime,qLl_motor)
+plot(rsTime,qLl_leg,'-')
 
-plot(qRl_motor,'r')
-plot(qRl_rotor,'r')
-plot(qRl_leg,'-r')
+plot(rsTime,qRl_motor,'r')
+plot(rsTime,qRl_rotor,'r')
+plot(rsTime,qRl_leg,'-r')
 
 % Show trigger angles
 len = ones(size(qLl_rotor));
 q1 = min(v_ATCSlipWalking__input_q1);
 q2 = min(v_ATCSlipWalking__input_q2);
 q3 = min(v_ATCSlipWalking__input_q3);
-plot(q1*len,'g-')
-plot(q2*len,'g-')
-plot(q3*len,'g-')
+plot(rsTime,q1*len,'g-')
+plot(rsTime,q2*len,'g-')
+plot(rsTime,q3*len,'g-')
 
 xlabel('Samples (ms)')
 ylabel('Angle (rad)')
 title('Rotor, Motor, and Leg angles in World Coordinates')
 
 % Find events
+logTime = v_ATCSlipWalking__log___time;
 event = diff(double(v_ATCSlipWalking__log_walkingState));
 for n = 1:(length(event)-1)
+    % If there is an event
+    if event(n) ~= 0
+        % Find the robot state index for this log time
+        rsN = find(logTime(n) == rsTime,1,'last');
+    end
+
+    % Each type of event
     % Right leg SS -> DS
     if event(n) == 1
-        plot(n,qLl_leg(n),'c*','MarkerSize', 12)
-        plot(n,qRl_leg(n),'c*','MarkerSize', 12)
+        plot(logTime(n),qLl_leg(rsN),'c*','MarkerSize', 12)
+        plot(logTime(n),qRl_leg(rsN),'c*','MarkerSize', 12)
     % DS -> Left leg SS
     elseif event(n) == 2
-        plot(n,qLl_leg(n),'k*','MarkerSize', 12)
-        plot(n,qRl_leg(n),'k*','MarkerSize', 12)
+        plot(logTime(n),qLl_leg(rsN),'k*','MarkerSize', 12)
+        plot(logTime(n),qRl_leg(rsN),'k*','MarkerSize', 12)
     % Left leg SS -> DS
     elseif event(n) == 3
-        plot(n,qLl_leg(n),'c*','MarkerSize', 12)
-        plot(n,qRl_leg(n),'c*','MarkerSize', 12)
+        plot(logTime(n),qLl_leg(rsN),'c*','MarkerSize', 12)
+        plot(logTime(n),qRl_leg(rsN),'c*','MarkerSize', 12)
     % DS -> Right leg SS
     elseif event(n) == -6
-        plot(n,qLl_leg(n),'k*','MarkerSize', 12)
-        plot(n,qRl_leg(n),'k*','MarkerSize', 12)
+        plot(logTime(n),qLl_leg(rsN),'k*','MarkerSize', 12)
+        plot(logTime(n),qRl_leg(rsN),'k*','MarkerSize', 12)
     end % if event
 end % for n
