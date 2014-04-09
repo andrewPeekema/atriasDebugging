@@ -40,18 +40,21 @@ for n = 2:length(toe)
 end
 
 % Rolling average
-roll = 4;
+roll = 5;
 for n = (roll+1):length(toe)
     toeFilt(n) = mean(toeFilt((n-roll):n));
 end
-
-% TODO: Make stance and flight indicators
 
 % Display the data
 plot(toe,'.b')
 hold on
 plot(toeFilt,'.r')
 
-% Debug
-%toeDiff = diff(toe);
-%plot(toeDiff,'.g')
+
+% Stance is the baseline value plus some threshold
+flightVal = mean(toeFilt(1:20))
+%flightVal = mean(toeFilt(4000:5000))
+threshold = 400;
+stance = toeFilt > (flightVal+threshold);
+% Plot stance
+plot(stance*(flightVal+threshold),'b')
