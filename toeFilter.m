@@ -5,6 +5,9 @@ close all
 % Toe data
 toe = v_log__robot__state_lToeSwitch;
 
+% Change type from uint16 to double
+toe = double(toe);
+
 %{
 % For debugging
 % Count the number of instances
@@ -21,27 +24,34 @@ plot(0:num,toeModCount,'.')
 return
 %}
 
+% Preallocate
+toeFilt = toe;
+
 % For each sample
 for n = 2:length(toe)
     % Remove the top and bottom extreme
     if (toe(n) == 4095) || (toe(n) == 0)
-        toe(n) = toe(n-1);
+        toeFilt(n) = toeFilt(n-1);
     end
-    % If the remainder is...
-    r = mod(toe(n),256);
-    if any(r == [0 9 10 14 15 50 51 52 53 54 55 71 73 128 255])
-        toe(n) = toe(n-1);
+    % If the data jumps by more than 1000, ignore the datapoint
+    if abs(toeFilt(n-1) - toeFilt(n)) > 1000
+        toeFilt(n) = toeFilt(n-1);
     end
 end
 
 % Rolling average
-roll = 10;
-toeRoll = NaN(1,length(toe));
+roll = 4;
 for n = (roll+1):length(toe)
-    toeRoll(n) = mean(toe((n-roll):n));
+    toeFilt(n) = mean(toeFilt((n-roll):n));
 end
+
+% TODO: Make stance and flight indicators
 
 % Display the data
 plot(toe,'.b')
-%hold on
-%plot(toeRoll,'.r')
+hold on
+plot(toeFilt,'.r')
+
+% Debug
+%toeDiff = diff(toe);
+%plot(toeDiff,'.g')
