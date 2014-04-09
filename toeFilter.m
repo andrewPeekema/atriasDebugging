@@ -50,7 +50,27 @@ plot(toe,'.b')
 hold on
 plot(toeFilt,'.r')
 
+% Detect Stance
+% Baseline samples
+nStartAvg = 120;
+nEndAvg   = 20;
+% Preallocate
+stance = zeros(1,length(toeFilt));
+threshold = zeros(1,length(toeFilt));
+% For each datapoint
+for n = (nStartAvg+1):length(toeFilt)
+    % Threshold value
+    startN = n-nStartAvg;
+    endN   = n-nEndAvg;
+    threshold(n) = 200;
+    threshold(n) = mean(toeFilt(startN:endN))+threshold(n);
+    % In stance if the value is greater than the threshold
+    stance(n) = toeFilt(n) > threshold(n);
+end
+% Plot stance
+plot(stance.*threshold,'b')
 
+%{
 % Stance is the baseline value plus some threshold
 flightVal = mean(toeFilt(1:20))
 %flightVal = mean(toeFilt(4000:5000))
@@ -58,3 +78,4 @@ threshold = 400;
 stance = toeFilt > (flightVal+threshold);
 % Plot stance
 plot(stance*(flightVal+threshold),'b')
+%}
