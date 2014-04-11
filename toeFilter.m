@@ -62,7 +62,7 @@ for n = (nStartAvg+1):length(toeFilt)
     % Threshold value
     startN = n-nStartAvg;
     endN   = n-nEndAvg;
-    threshold(n) = 200;
+    threshold(n) = 500;
     threshold(n) = mean(toeFilt(startN:endN))+threshold(n);
     % In stance if the value is greater than the threshold
     stance(n) = toeFilt(n) > threshold(n);
