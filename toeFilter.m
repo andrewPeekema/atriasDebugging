@@ -3,7 +3,7 @@ clc
 close all
 
 % Toe data
-toe = v_log__robot__state_lToeSwitch;
+toe = v_log__robot__state_rToeSwitch;
 
 % Change type from uint16 to double
 toe = double(toe);
@@ -28,22 +28,20 @@ return
 toeFilt = toe;
 
 % For each sample
-for n = 2:length(toe)
+roll = 3;
+for n = (roll+1):length(toe)
     % Remove the top and bottom extreme
     if (toe(n) == 4095) || (toe(n) == 0)
         toeFilt(n) = toeFilt(n-1);
     end
-    % If the data jumps by more than 1000, ignore the datapoint
-    if abs(toeFilt(n-1) - toeFilt(n)) > 1000
+    % If the data jumps by more than 1500, ignore the datapoint
+    if abs(toe(n) - toeFilt(n-1)) > 1500
         toeFilt(n) = toeFilt(n-1);
     end
-end
-
-% Rolling average
-roll = 5;
-for n = (roll+1):length(toe)
+    % Rolling average
     toeFilt(n) = mean(toeFilt((n-roll):n));
 end
+
 
 % Display the data
 plot(toe,'.b')
