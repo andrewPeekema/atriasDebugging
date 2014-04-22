@@ -25,6 +25,13 @@ for leg = [1 2] % left and right legs
     % Determine timing offset
     [td to offset stanceOffset] = timingAndOffset(leg);
 
+    % Initialize the force point vectors
+    X1 = [];
+    X2 = [];
+    Y1 = [];
+    Y2 = [];
+    Ftot = [];
+
     % For each stance phase
     for n = 1:(length(td)-offset-stanceOffset)
         % Start and end indicies of a stance phase
@@ -34,7 +41,7 @@ for leg = [1 2] % left and right legs
         ql = a.Kinematics.legAngles(n1:n2,leg);
         rl = a.Kinematics.legLength(n1:n2,leg);
 
-        % Applied forces
+        %% Applied forces
         % Axial and tangential force
         aF = a.Dynamics.axLegForce(n1:n2,leg);
         tF = a.Dynamics.tanLegForce(n1:n2,leg);
@@ -54,7 +61,15 @@ for leg = [1 2] % left and right legs
             p(1) = plot([x1(fn) x2(fn)],[y1(fn) y2(fn)]);
         end
 
-        % Desired forces
+        % Save the applied forces for determining the VPP later
+        X1(end+1:end+length(x1))  = x1;
+        Y1(end+1:end+length(y1))  = y1;
+        X2(end+1:end+length(x2))  = x2;
+        Y2(end+1:end+length(y2))  = y2;
+        Ftot(end+1:end+length(F)) = F;
+
+
+        %% Desired forces
         Fx = -a.ControllerData.controlFx((n1:n2),leg);
         Fz = -a.ControllerData.controlFz((n1:n2),leg);
         % Body pitch from vertical
@@ -97,16 +112,59 @@ for leg = [1 2] % left and right legs
     p(4) = plot(x,y,'.r','MarkerSize',40);
 
     % Plot options
-    title('Virtual Pivot Point')
+    if leg == 1
+        title('Left Leg VPP')
+    else
+        title('Right Leg VPP')
+    end
     xlabel('Distance (m)')
     ylabel('Distance (m)')
     ylim([-1 1.4])
 
+    % Determine the virtual pivot point from the applied forces
+    % (X1, Y1), (X2, Y2), Ftot
+    options = optimset(...
+        'TolX',1e-18,...
+        'TolFun',1e-18,...
+        'MaxFunEvals',600,...
+        'UseParallel','always',...
+        'Display','iter');
+    %    'Display','none');
+    % VPP guess is the desired VPP
+    guess = [x; y];
+    vpp = fminsearch(@momentSquared,guess,options);
+    % Plot the true vpp
+    p(5) = plot(vpp(1),vpp(2),'.g','MarkerSize',40);
+    % Feedback
+    % TODO: Convert to polar coordinates
+    %{
+    if leg == 1 % Left leg
+        display(['Left Leg r VPP: ' num2str(vpp(1)))]);
+    else
+    %}
+
 end % for leg
 
 % Labeling
-legend(p,'Applied Force','Desired Force','CoM','VPP','Location','Best')
+legend(p,'Applied Force','Desired Force','CoM','Desired VPP','True VPP','Location','Best')
 
+
+
+% Find the moment applied about the given coordinates x,y
+function result = momentSquared(Guess)
+    % Guess vpp coordinates
+    x = Guess(1);
+    y = Guess(2);
+
+    % The shortest distance between the VPP coordinates and each force vector
+    % as defined by (X1, Y1) and (X2, Y2)
+    DX = X2 - X1;
+    DY = Y2 - Y1;
+    d  = abs(DY*x - DX*y - X1.*Y2 + X2.*Y1)./hypot(DX,DY);
+
+    % The moment squared
+    result = sum((Ftot.*d).^2);
+end % momentSquared
 
 % Time touchdown and takeoff correctly
 function [td to offset stanceOffset] = timingAndOffset(leg)
