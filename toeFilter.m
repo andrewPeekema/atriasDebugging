@@ -3,7 +3,7 @@ clc
 close all
 
 % Toe data
-toe = v_log__robot__state_rToeSwitch;
+toe = v_log__robot__state_lToeSwitch;
 
 % Change type from uint16 to double
 toe = double(toe);
