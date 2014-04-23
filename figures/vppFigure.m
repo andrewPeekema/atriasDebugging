@@ -15,6 +15,9 @@ close all
 % Make a figure for force vectors
 figure
 
+% ATRIAS constant
+rcom = 0.15;
+
 for leg = [1 2] % left and right legs
     % Left leg on the left plot, right leg on the right
     subplot(1,2,leg)
@@ -94,6 +97,39 @@ for leg = [1 2] % left and right legs
 
         % Plot the first footpoint
         plot(x1(1),y1(1),'r.')
+
+        % For debugging vpp per step
+        %{
+        % Determine the virtual pivot point from the applied forces
+        % (x1, y1), (x2, y2), F
+        options = optimset(...
+            'TolX',1e-18,...
+            'TolFun',1e-18,...
+            'MaxFunEvals',600,...
+            'UseParallel','always',...
+            'Display','none');
+        %    'Display','iter');
+        % VPP guess is the desired VPP
+        x = -a.ControllerData.rvpp(end)*sin(a.ControllerData.qvpp(end));
+        y = rcom + a.ControllerData.rvpp(end)*cos(a.ControllerData.qvpp(end));
+        guess = [x; y];
+        vpp = fminsearch(@momentSquared,guess,options);
+        % Feedback
+        x = vpp(1);
+        y = vpp(2)-rcom;
+        r = hypot(x,y);
+        q = atan(x/y);
+
+        if leg == 1 % Left leg
+            display(['Left Leg r VPP (m): ' num2str(r)]);
+            display(['Left Leg q VPP (deg): ' num2str(rad2deg(q))]);
+            display(' ')
+        else % right leg
+            display(['Right Leg r VPP (m): ' num2str(r)]);
+            display(['Right Leg q VPP (deg): ' num2str(rad2deg(q))]);
+            display(' ')
+        end
+        %}
     end
 
     % Torso
@@ -104,12 +140,14 @@ for leg = [1 2] % left and right legs
     y = [height 0 0 height height];
     plot(x,y,'--k')
     % Center of Mass
-    rcom = 0.15;
     p(3) = plot(0,rcom,'.k','MarkerSize',40);
     % Virtual Pivot Point
     x = -a.ControllerData.rvpp(end)*sin(a.ControllerData.qvpp(end));
     y = rcom + a.ControllerData.rvpp(end)*cos(a.ControllerData.qvpp(end));
     p(4) = plot(x,y,'.r','MarkerSize',40);
+    % Feedback
+    display(['Desired r VPP (m): ' num2str(a.ControllerData.rvpp(end))]);
+    display(['Desired q VPP (deg): ' num2str(-rad2deg(a.ControllerData.qvpp(end)))]);
 
     % Plot options
     if leg == 1
@@ -128,20 +166,28 @@ for leg = [1 2] % left and right legs
         'TolFun',1e-18,...
         'MaxFunEvals',600,...
         'UseParallel','always',...
-        'Display','iter');
-    %    'Display','none');
+        'Display','none');
+    %    'Display','iter');
     % VPP guess is the desired VPP
     guess = [x; y];
     vpp = fminsearch(@momentSquared,guess,options);
     % Plot the true vpp
     p(5) = plot(vpp(1),vpp(2),'.g','MarkerSize',40);
     % Feedback
-    % TODO: Convert to polar coordinates
-    %{
+    x = vpp(1);
+    y = vpp(2)-rcom;
+    r = hypot(x,y);
+    q = atan(x/y);
+
     if leg == 1 % Left leg
-        display(['Left Leg r VPP: ' num2str(vpp(1)))]);
-    else
-    %}
+        display(['Left Leg r VPP (m): ' num2str(r)]);
+        display(['Left Leg q VPP (deg): ' num2str(rad2deg(q))]);
+        display(' ')
+    else % right leg
+        display(['Right Leg r VPP (m): ' num2str(r)]);
+        display(['Right Leg q VPP (deg): ' num2str(rad2deg(q))]);
+        display(' ')
+    end
 
 end % for leg
 
