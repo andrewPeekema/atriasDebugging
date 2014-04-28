@@ -3,7 +3,7 @@ close all
 clc
 
 % Plot the desired vs actual leg force
-leg=2;
+leg=1;
 % Desired force
 controlF = hypot(a.ControllerData.controlFx(:,leg),a.ControllerData.controlFz(:,leg));
 % Computed force
