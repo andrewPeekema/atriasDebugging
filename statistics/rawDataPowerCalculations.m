@@ -61,8 +61,8 @@ motorPower = -springTorque.*motorVelocity;
 %legend('Gait Power','Spring Power','Location','Best')
 
 % Only the right leg
-t1 = 157000;
-t2 = t1+1500;
+t1 = 1;
+t2 = length(motorPower);
 for n = 1:2
     subplot(1,2,n)
     plot(motorPower(t1:t2,n+2)+springPower(t1:t2,n+2),'c.')
