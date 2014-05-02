@@ -14,6 +14,8 @@ power = supplyCurrent.*supplyVoltage;               % (W)
 
 % Cost of Transport
 xVelocity = a.Kinematics.velocity(:,1);
+% Remove any NaNs
+xVelocity(isnan(xVelocity)) = [];
 CoT = power./(xVelocity*m*g);
 
 % Statistics
