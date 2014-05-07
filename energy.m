@@ -10,7 +10,6 @@ clear all
 
 % The logfile to analyze
 filePath = '/Users/andrew/Desktop/atrias_2014-05-06-16-03-12.mat';
-addpath('./..') % For simplifyLogfile
 rs = logfileToStruct(filePath);
 display(['Analyzing: ' filePath])
 
@@ -49,6 +48,7 @@ legend('Spring PE','Gravitational PE','KE','Location','best')
 
 
 
+% Show single and double support
 prevYLim = ylim; % Get vertical limits
 % Single Support
 for n = 1:length(rs.SS)

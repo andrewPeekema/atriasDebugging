@@ -14,12 +14,16 @@ rs.g  = 9.81; % m/s^2
 % Angles
 rs.qLlA = v_log__robot__state_lALegAngle;
 rs.qLlB = v_log__robot__state_lBLegAngle;
-rs.qLmA = v_log__robot__state_lAMotorAngle;
-rs.qLmB = v_log__robot__state_lBMotorAngle;
 rs.qRlA = v_log__robot__state_rALegAngle;
 rs.qRlB = v_log__robot__state_rBLegAngle;
+rs.qLmA = v_log__robot__state_lAMotorAngle;
+rs.qLmB = v_log__robot__state_lBMotorAngle;
 rs.qRmA = v_log__robot__state_rAMotorAngle;
 rs.qRmB = v_log__robot__state_rBMotorAngle;
+rs.qLrA = v_log__robot__state_lARotorAngle;
+rs.qLrB = v_log__robot__state_lBRotorAngle;
+rs.qRrA = v_log__robot__state_rARotorAngle;
+rs.qRrB = v_log__robot__state_rBRotorAngle;
 rs.qb   = v_log__robot__state_bodyPitch;
 % Spring deflections
 rs.lADfl = -rs.qLlA+rs.qLmA;
@@ -30,12 +34,16 @@ rs.rBDfl =  rs.qRlA-rs.qRmA;
 % Angular velocities
 rs.dqLlA = v_log__robot__state_lALegVelocity;
 rs.dqLlB = v_log__robot__state_lBLegVelocity;
-rs.dqLmA = v_log__robot__state_lAMotorVelocity;
-rs.dqLmB = v_log__robot__state_lBMotorVelocity;
 rs.dqRlA = v_log__robot__state_rALegVelocity;
 rs.dqRlB = v_log__robot__state_rBLegVelocity;
+rs.dqLmA = v_log__robot__state_lAMotorVelocity;
+rs.dqLmB = v_log__robot__state_lBMotorVelocity;
 rs.dqRmA = v_log__robot__state_rAMotorVelocity;
 rs.dqRmB = v_log__robot__state_rBMotorVelocity;
+rs.dqLrA = v_log__robot__state_lARotorVelocity;
+rs.dqLrB = v_log__robot__state_lBRotorVelocity;
+rs.dqRrA = v_log__robot__state_rARotorVelocity;
+rs.dqRrB = v_log__robot__state_rBRotorVelocity;
 rs.dqb   = v_log__robot__state_bodyPitchVelocity;
 
 % Positions and velocities
@@ -45,6 +53,12 @@ rs.z = v_log__robot__state_zPosition;
 rs.dx = v_log__robot__state_xVelocity;
 rs.dy = v_log__robot__state_yVelocity;
 rs.dz = v_log__robot__state_zVelocity;
+
+% Commanded currents
+rs.cmdLA = v_log__robot__state_lAClampedCmd;
+rs.cmdLB = v_log__robot__state_lBClampedCmd;
+rs.cmdRA = v_log__robot__state_rAClampedCmd;
+rs.cmdRB = v_log__robot__state_rBClampedCmd;
 
 % The robot state time vector (ms)
 rs.time = 1000*v_log__robot__state___time;
