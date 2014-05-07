@@ -37,27 +37,37 @@ KE(KE>maxE)   = 0;
 
 % Visualization
 figure
-plot(PEs,'b.')
+plot(rs.time,PEs,'b.')
 hold on
-plot(PEg,'g.')
-plot(KE,'r.')
+plot(rs.time,PEg,'g.')
+plot(rs.time,KE,'r.')
 title('Kinetic and Potential Energy')
 xlabel('Time (ms)')
 ylabel('Energy (J)')
 legend('Spring PE','Gravitational PE','KE','Location','best')
 
-% TODO: Plot vertical lines to indicate events
-% TODO: use "fill" to make shaded regions
+
+
 prevYLim = ylim; % Get vertical limits
-for n = 1:length(rs.td)
-    plot([rs.td(n) rs.td(n)],prevYLim)
+% Single Support
+for n = 1:length(rs.SS)
+    nSS = [rs.SS(n,1) rs.SS(n,1) rs.SS(n,2) rs.SS(n,2)];
+    y   = [prevYLim(1) prevYLim(2) prevYLim(2) prevYLim(1)];
+    color = 1 - [0.2 0 0];
+    p = patch(rs.time(nSS),y,color);
+    set(p,'EdgeColor','None')
 end
-for n = 1:length(rs.to)
-    plot([rs.to(n) rs.to(n)],prevYLim)
+% Double Support
+for n = 1:length(rs.DS)
+    nDS = [rs.DS(n,1) rs.DS(n,1) rs.DS(n,2) rs.DS(n,2)];
+    y   = [prevYLim(1) prevYLim(2) prevYLim(2) prevYLim(1)];
+    color = 1 - [0.3 0 0];
+    p = patch(rs.time(nDS),y,color);
+    set(p,'EdgeColor','None')
 end
 
 figure
-plot(PEs+PEg+KE,'b.')
+plot(rs.time,PEs+PEg+KE,'b.')
 title('System Energy')
 xlabel('Time (ms)')
 ylabel('Energy (J)')

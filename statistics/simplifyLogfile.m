@@ -46,14 +46,15 @@ rs.dx = v_log__robot__state_xVelocity;
 rs.dy = v_log__robot__state_yVelocity;
 rs.dz = v_log__robot__state_zVelocity;
 
-% The robot state time vector
-rs.time = v_log__robot__state___time;
+% The robot state time vector (ms)
+rs.time = 1000*v_log__robot__state___time;
 
 %% Controller specific data
 if exist('v_ATCSlipWalking__log_walkingState')
+    % The controller time vector (ms)
+    rs.cTime = 1000*v_ATCSlipWalking__log___time;
+    % Single/Double support, left/right legs
     rs.state = double(v_ATCSlipWalking__log_walkingState);
-    % The controller time vector
-    rs.cTime = v_ATCSlipWalking__log___time;
 else
     display('simplifyLogfile warning: Unknown controller data format')
 end
@@ -69,8 +70,8 @@ if isfield(rs,'state')
     rs.rto = [];
     rs.rtd = [];
     rs.lto = [];
-    rs.to = [];
-    rs.td = [];
+    rs.to  = [];
+    rs.td  = [];
 
     % For each possible event
     for n = 1:length(rs.event)
@@ -100,6 +101,33 @@ if isfield(rs,'state')
             rs.to(end+1)  = rsN;
         end % if event
     end % for n
+
+
+    % Find single support and double support
+    % Find the number of single and double support phases
+    nSS = length(rs.to);
+    nDS = length(rs.td);
+
+    % Assume the first event is takeoff
+    % For single support, the last event is touchdown
+    nTo = length(rs.to);
+    if rs.td(end) < rs.to(end) % If the last event is takeoff
+        nTo = nTo-1; % Shorten the number of takeoffs
+    end
+    % For each singe support phase
+    for n = 1:nTo
+        rs.SS(n,:) = [rs.to(n) rs.td(n)];
+    end
+
+    % For double support, the last event is takeoff
+    nTd = length(rs.td);
+    if rs.to(end) < rs.td(end) % If the last event is touchdown
+        nTd = nTd-1; % Shorten the number of touchdowns
+    end
+    % For each double support phase
+    for n = 1:nTd
+        rs.DS(n,:) = [rs.td(n) rs.to(n+1)];
+    end
 
 end % isfield
 
