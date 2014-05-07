@@ -10,7 +10,8 @@ clear all
 
 % The logfile to analyze
 filePath = '/Users/andrew/Desktop/atrias_2014-05-06-16-03-12.mat';
-rs = simplifyLogfile(filePath);
+addpath('./..') % For simplifyLogfile
+rs = logfileToStruct(filePath);
 display(['Analyzing: ' filePath])
 
 %% Kenetic Energy
