@@ -99,7 +99,6 @@ for leg = [1 2] % left and right legs
         plot(x1(1),y1(1),'r.')
 
         % For debugging vpp per step
-        %{
         % Determine the virtual pivot point from the applied forces
         % (x1, y1), (x2, y2), F
         options = optimset(...
@@ -129,7 +128,6 @@ for leg = [1 2] % left and right legs
             display(['Right Leg q VPP (deg): ' num2str(rad2deg(q))]);
             display(' ')
         end
-        %}
     end
 
     % Torso

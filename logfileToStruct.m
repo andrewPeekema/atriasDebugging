@@ -1,4 +1,4 @@
-function [rs cs] = simplifyLogfile(filepath)
+function [rs, cs] = logfileToStruct(filepath)
 % Input: logfile path
 % Output: robot state struct, controller state struct
 
@@ -78,11 +78,15 @@ if exist('v_ATCSlipWalking__log_walkingState')
     cs.q3   = v_ATCSlipWalking__input_q3;
     cs.q4   = v_ATCSlipWalking__input_q4;
     cs.r0   = v_ATCSlipWalking__input_leg__length;
-    % TODO: Add control/compute forces (atrias.m line 228)
-    %cs.controlFx(:,1:2) = NaN(rsTimeN,2);
-    %cs.controlFz(:,1:2) = NaN(rsTimeN,2);
-    %cs.computeFx(:,1:2) = NaN(rsTimeN,2);
-    %cs.computeFz(:,1:2) = NaN(rsTimeN,2);
+    rsTimeN = [1 length(rs.time)];
+    cs.controlFxL = NaN(rsTimeN);
+    cs.controlFzL = NaN(rsTimeN);
+    cs.controlFxR = NaN(rsTimeN);
+    cs.controlFzR = NaN(rsTimeN);
+    cs.computeFxL = NaN(rsTimeN);
+    cs.computeFzL = NaN(rsTimeN);
+    cs.computeFxR = NaN(rsTimeN);
+    cs.computeFzR = NaN(rsTimeN);
 else
     display('simplifyLogfile warning: Unknown controller data format')
 end
@@ -153,6 +157,41 @@ if isfield(cs,'state')
         cs.DS(n,:) = [cs.td(n) cs.to(n+1)];
     end
 
+end % isfield
+
+% If relevant, get force data
+if isfield(cs,'controlFxL')
+    % Left leg force controller
+    forceContTime = v_ATCSlipWalking__ascLegForceL__log___time*1000;
+    % For all log times
+    for n = 1:length(forceContTime)
+        % The robot state time index for this robot state time
+        rsN = find(forceContTime(n) == rs.time,1,'last');
+        % If this force controller time is in the robot state
+        if ~isempty(rsN)
+            % Store the contol data
+            cs.controlFxL(rsN) = v_ATCSlipWalking__ascLegForceL__log_control__fx(n);
+            cs.controlFzL(rsN) = v_ATCSlipWalking__ascLegForceL__log_control__fz(n);
+            cs.computeFxL(rsN) = v_ATCSlipWalking__ascLegForceL__log_compute__fx(n);
+            cs.computeFzL(rsN) = v_ATCSlipWalking__ascLegForceL__log_compute__fz(n);
+        end
+    end % for n
+
+    % Right leg force controller
+    forceContTime = v_ATCSlipWalking__ascLegForceR__log___time*1000;
+    % For all log times
+    for n = 1:length(forceContTime)
+        % The robot state time index for this robot state time
+        rsN = find(forceContTime(n) == rs.time,1,'last');
+        % If this force controller time is in the robot state
+        if ~isempty(rsN)
+            % Store the contol data
+            cs.controlFxR(rsN) = v_ATCSlipWalking__ascLegForceR__log_control__fx(n);
+            cs.controlFzR(rsN) = v_ATCSlipWalking__ascLegForceR__log_control__fz(n);
+            cs.computeFxR(rsN) = v_ATCSlipWalking__ascLegForceR__log_compute__fx(n);
+            cs.computeFzR(rsN) = v_ATCSlipWalking__ascLegForceR__log_compute__fz(n);
+        end
+    end % for n
 end % isfield
 
 

@@ -9,7 +9,7 @@ close all
 clear all
 
 % The logfile to analyze
-filePath = '/Users/andrew/Desktop/atrias_2014-05-06-16-03-12.mat';
+filePath = '/Users/andrew/Desktop/atrias_2014-05-08-10-55-45.mat';
 [rs cs] = logfileToStruct(filePath);
 display(['Analyzing: ' filePath])
 

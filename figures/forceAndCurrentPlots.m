@@ -1,20 +1,37 @@
+% Plot the desired vs actual leg force
+
 % Cleanup
 close all
+clear all
 clc
 
-% Plot the desired vs actual leg force
-leg=1;
-% Desired force
-controlF = hypot(a.ControllerData.controlFx(:,leg),a.ControllerData.controlFz(:,leg));
-% Computed force
-computeF = hypot(a.ControllerData.computeFx(:,leg),a.ControllerData.computeFz(:,leg));
+% The logfile to analyze
+addpath('./..')
+filePath = '/Users/andrew/Desktop/VPP Analysis/atrias_2014-05-08-10-55-45.mat';
+tic
+[rs cs] = logfileToStruct(filePath);
+toc
+display(['Analyzing: ' filePath])
+
+% Left leg
+controlF = hypot(cs.controlFxL,cs.controlFzL);
+computeF = hypot(cs.computeFxL,cs.computeFzL);
+% Display
 plot(controlF,'r.')
 hold on
-plot(computeF,'.b')
-% Percent control error
-plot((controlF-computeF)./controlF*100,'m.')
-% Motor current
-plot(a.Electrics.motorCurrent(:,leg*(1:2)),'.g')
+plot(computeF,'b.')
+plot(rs.cmdLA,'g.')
+plot(rs.cmdLB,'g.')
+
+% Right leg
+controlF = hypot(cs.controlFxR,cs.controlFzR);
+computeF = hypot(cs.computeFxR,cs.computeFzR);
+% Display
+plot(controlF,'r.')
+hold on
+plot(computeF,'b.')
+plot(rs.cmdRA,'g.')
+plot(rs.cmdRB,'g.')
 
 % Labels
 legend('Desired Force (N)',...
