@@ -1,6 +1,6 @@
-function rs = simplifyLogfile(filepath)
+function [rs cs] = simplifyLogfile(filepath)
 % Input: logfile path
-% Output: robot state struct
+% Output: robot state struct, controller state struct
 
 % Load the logfile
 load(filepath)
@@ -63,84 +63,94 @@ rs.cmdRB = v_log__robot__state_rBClampedCmd;
 % The robot state time vector (ms)
 rs.time = 1000*v_log__robot__state___time;
 
+
 %% Controller specific data
+cs = [];
 if exist('v_ATCSlipWalking__log_walkingState')
     % The controller time vector (ms)
-    rs.cTime = 1000*v_ATCSlipWalking__log___time;
+    cs.time = 1000*v_ATCSlipWalking__log___time;
     % Single/Double support, left/right legs
-    rs.state = double(v_ATCSlipWalking__log_walkingState);
+    cs.state = double(v_ATCSlipWalking__log_walkingState);
+    cs.rvpp = v_ATCSlipWalking__input_rvpp;
+    cs.qvpp = v_ATCSlipWalking__input_qvpp;
+    cs.q1   = v_ATCSlipWalking__input_q1;
+    cs.q2   = v_ATCSlipWalking__input_q2;
+    cs.q3   = v_ATCSlipWalking__input_q3;
+    cs.q4   = v_ATCSlipWalking__input_q4;
+    cs.r0   = v_ATCSlipWalking__input_leg__length;
+    % TODO: Add control/compute forces (atrias.m line 228)
+    %cs.controlFx(:,1:2) = NaN(rsTimeN,2);
+    %cs.controlFz(:,1:2) = NaN(rsTimeN,2);
+    %cs.computeFx(:,1:2) = NaN(rsTimeN,2);
+    %cs.computeFz(:,1:2) = NaN(rsTimeN,2);
 else
     display('simplifyLogfile warning: Unknown controller data format')
 end
 
 
 % If relevant, get timing data
-if isfield(rs,'state')
+if isfield(cs,'state')
     % Find event transitions in controller time
-    rs.event = diff(rs.state);
+    cs.event = diff(cs.state);
 
     % Initialize vectors
-    rs.ltd = [];
-    rs.rto = [];
-    rs.rtd = [];
-    rs.lto = [];
-    rs.to  = [];
-    rs.td  = [];
+    cs.ltd = [];
+    cs.rto = [];
+    cs.rtd = [];
+    cs.lto = [];
+    cs.to  = [];
+    cs.td  = [];
 
     % For each possible event
-    for n = 1:length(rs.event)
+    for n = 1:length(cs.event)
         % Convert controller time to robotState time
         % If there is an event
-        if rs.event(n) ~= 0
+        if cs.event(n) ~= 0
             % Find the robot state index for this log time
-            rsN = find(rs.cTime(n) == rs.time,1,'last');
+            rsN = find(cs.time(n) == rs.time,1,'last');
         end
 
         % Each type of event
         % Left leg touchdown
-        if rs.event(n) == 1
-            rs.ltd(end+1) = rsN;
-            rs.td(end+1)  = rsN;
+        if cs.event(n) == 1
+            cs.ltd(end+1) = rsN;
+            cs.td(end+1)  = rsN;
         % Right leg takeoff
-        elseif rs.event(n) == 2
-            rs.rto(end+1) = rsN;
-            rs.to(end+1)  = rsN;
+        elseif cs.event(n) == 2
+            cs.rto(end+1) = rsN;
+            cs.to(end+1)  = rsN;
         % Right leg touchdown
-        elseif rs.event(n) == 3
-            rs.rtd(end+1) = rsN;
-            rs.td(end+1)  = rsN;
+        elseif cs.event(n) == 3
+            cs.rtd(end+1) = rsN;
+            cs.td(end+1)  = rsN;
         % Left leg takeoff
-        elseif rs.event(n) == -6
-            rs.lto(end+1) = rsN;
-            rs.to(end+1)  = rsN;
+        elseif cs.event(n) == -6
+            cs.lto(end+1) = rsN;
+            cs.to(end+1)  = rsN;
         end % if event
     end % for n
 
 
-    % Find single support and double support
-    % Find the number of single and double support phases
-    nSS = length(rs.to);
-    nDS = length(rs.td);
-
+    %% Find single support and double support
     % Assume the first event is takeoff
     % For single support, the last event is touchdown
-    nTo = length(rs.to);
-    if rs.td(end) < rs.to(end) % If the last event is takeoff
+    nTo = length(cs.to);
+    if cs.td(end) < cs.to(end) % If the last event is takeoff
         nTo = nTo-1; % Shorten the number of takeoffs
     end
     % For each singe support phase
     for n = 1:nTo
-        rs.SS(n,:) = [rs.to(n) rs.td(n)];
+        cs.SS(n,:) = [cs.to(n) cs.td(n)];
     end
 
     % For double support, the last event is takeoff
-    nTd = length(rs.td);
-    if rs.to(end) < rs.td(end) % If the last event is touchdown
+    nTd = length(cs.td);
+    if cs.to(end) < cs.td(end) % If the last event is touchdown
         nTd = nTd-1; % Shorten the number of touchdowns
     end
     % For each double support phase
     for n = 1:nTd
-        rs.DS(n,:) = [rs.td(n) rs.to(n+1)];
+        cs.DS(n,:) = [cs.td(n) cs.to(n+1)];
     end
 
 end % isfield

@@ -10,7 +10,7 @@ clear all
 
 % The logfile to analyze
 filePath = '/Users/andrew/Desktop/atrias_2014-05-06-16-03-12.mat';
-rs = logfileToStruct(filePath);
+[rs cs] = logfileToStruct(filePath);
 display(['Analyzing: ' filePath])
 
 %% Kenetic Energy
@@ -51,16 +51,16 @@ legend('Spring PE','Gravitational PE','KE','Location','best')
 % Show single and double support
 prevYLim = ylim; % Get vertical limits
 % Single Support
-for n = 1:length(rs.SS)
-    nSS = [rs.SS(n,1) rs.SS(n,1) rs.SS(n,2) rs.SS(n,2)];
+for n = 1:length(cs.SS)
+    nSS = [cs.SS(n,1) cs.SS(n,1) cs.SS(n,2) cs.SS(n,2)];
     y   = [prevYLim(1) prevYLim(2) prevYLim(2) prevYLim(1)];
     color = 1 - [0.2 0 0];
     p = patch(rs.time(nSS),y,color);
     set(p,'EdgeColor','None')
 end
 % Double Support
-for n = 1:length(rs.DS)
-    nDS = [rs.DS(n,1) rs.DS(n,1) rs.DS(n,2) rs.DS(n,2)];
+for n = 1:length(cs.DS)
+    nDS = [cs.DS(n,1) cs.DS(n,1) cs.DS(n,2) cs.DS(n,2)];
     y   = [prevYLim(1) prevYLim(2) prevYLim(2) prevYLim(1)];
     color = 1 - [0.3 0 0];
     p = patch(rs.time(nDS),y,color);
