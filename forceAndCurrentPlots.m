@@ -6,11 +6,8 @@ clear all
 clc
 
 % The logfile to analyze
-addpath('./..')
 filePath = '/Users/andrew/Desktop/VPP Analysis/atrias_2014-05-08-10-55-45.mat';
-tic
 [rs cs] = logfileToStruct(filePath);
-toc
 display(['Analyzing: ' filePath])
 
 % Left leg
