@@ -14,21 +14,29 @@ display(['Analyzing: ' filePath])
 controlF = hypot(cs.controlFxL,cs.controlFzL);
 computeF = hypot(cs.computeFxL,cs.computeFzL);
 % Display
-plot(controlF,'r.')
+plot(rs.time,controlF,'r.')
 hold on
-plot(computeF,'b.')
-plot(rs.cmdLA,'g.')
-plot(rs.cmdLB,'g.')
+plot(rs.time,computeF,'b.')
+% Only plot current where there is force data
+fData = ~isnan(controlF)'; % vector of ones and zeros
+fData = double(fData); % Convert from logical to double
+fData(fData==0) = NaN;
+plot(rs.time,rs.cmdLA.*fData,'g.')
+plot(rs.time,rs.cmdLB.*fData,'g.')
 
 % Right leg
 controlF = hypot(cs.controlFxR,cs.controlFzR);
 computeF = hypot(cs.computeFxR,cs.computeFzR);
 % Display
-plot(controlF,'r.')
+plot(rs.time,controlF,'r.')
 hold on
-plot(computeF,'b.')
-plot(rs.cmdRA,'g.')
-plot(rs.cmdRB,'g.')
+plot(rs.time,computeF,'b.')
+% Only plot current where there is force data
+fData = ~isnan(controlF)'; % vector of ones and zeros
+fData = double(fData); % Convert from logical to double
+fData(fData==0) = NaN;
+plot(rs.time,rs.cmdRA.*fData,'c.')
+plot(rs.time,rs.cmdRB.*fData,'c.')
 
 % Labels
 legend('Desired Force (N)',...
