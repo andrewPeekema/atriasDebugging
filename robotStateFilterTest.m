@@ -1,4 +1,4 @@
-% Find: how to filter positions and velocites
+% Show filtered positions and velocities
 
 % Cleanup
 clc
