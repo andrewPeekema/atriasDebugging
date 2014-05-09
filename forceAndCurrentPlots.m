@@ -7,8 +7,7 @@ clc
 
 % The logfile to analyze
 filePath = '/Users/andrew/Desktop/VPP Analysis/atrias_2014-05-08-10-55-45.mat';
-[rs cs] = logfileToStruct(filePath);
-display(['Analyzing: ' filePath])
+[c rs cs] = logfileToStruct(filePath);
 
 % Left leg
 controlF = hypot(cs.controlFxL,cs.controlFzL);

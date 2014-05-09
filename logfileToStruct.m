@@ -1,14 +1,28 @@
-function [rs, cs] = logfileToStruct(filepath)
+function [c, rs, cs] = logfileToStruct(filePath)
 % Input: logfile path
-% Output: robot state struct, controller state struct
+% Output:
+%     c  = robot constants
+%     rs = robot state struct
+%     cs = controller state struct
 
-% Load the logfile
-load(filepath)
+% Initialize structs
+cs = [];
+rs = [];
 
 % Set constants
-rs.m  = 60.0; % kg
-rs.ks = 1600; % N*m/rad
-rs.g  = 9.81; % m/s^2
+c.m  = 60.0; % kg
+c.ks = 1600; % N*m/rad
+c.g  = 9.81; % m/s^2
+
+% Return early if only constants are requested
+if nargout == 1
+    return
+end
+
+
+% Load the logfile
+load(filePath)
+display(['Analyzing: ' filePath])
 
 % General robot state
 % Angles
@@ -65,9 +79,8 @@ rs.time = 1000*v_log__robot__state___time;
 
 
 %% Controller specific data
-cs = [];
 % Return early if controller data is not requested
-if nargout == 1
+if nargout == 2
     return
 end
 

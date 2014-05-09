@@ -10,8 +10,7 @@ clear all
 
 % The logfile to analyze
 filePath = '/Users/andrew/Desktop/atrias_2014-05-08-10-55-45.mat';
-[rs cs] = logfileToStruct(filePath);
-display(['Analyzing: ' filePath])
+[c rs cs] = logfileToStruct(filePath);
 
 %% Kenetic Energy
 v = hypot(rs.dx,rs.dz);
