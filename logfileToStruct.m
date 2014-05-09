@@ -66,6 +66,11 @@ rs.time = 1000*v_log__robot__state___time;
 
 %% Controller specific data
 cs = [];
+% Return early if controller data is not requested
+if nargout == 1
+    return
+end
+
 if exist('v_ATCSlipWalking__log_walkingState')
     % The controller time vector (ms)
     cs.time = 1000*v_ATCSlipWalking__log___time;
