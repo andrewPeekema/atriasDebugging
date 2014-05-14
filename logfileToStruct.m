@@ -77,6 +77,16 @@ rs.cmdRB = v_log__robot__state_rBClampedCmd;
 % The robot state time vector (ms)
 rs.time = 1000*v_log__robot__state___time;
 
+% Calculated angles and lengths
+rs.qLl = (rs.qLlA+rs.qLlB)/2;
+rs.rLl = cos(rs.qLl-rs.qLlA);
+rs.qRl = (rs.qRlA+rs.qRlB)/2;
+rs.rRl = cos(rs.qRl-rs.qRlA);
+rs.qLm = (rs.qLmA+rs.qLmB)/2;
+rs.rLm = cos(rs.qLm-rs.qLmA);
+rs.qRm = (rs.qRmA+rs.qRmB)/2;
+rs.rRm = cos(rs.qRm-rs.qRmA);
+
 
 %% Controller specific data
 % Return early if controller data is not requested

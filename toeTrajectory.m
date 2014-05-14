@@ -1,16 +1,15 @@
-function toeTrajectory(a)
 % Plot the toe trajectory with respect to the body, factoring in body pitch
-% Input:
-%   a: an ATRIASanalysis class
-
-% Check for input
-if ~exist('a')
-    error('An ATRIASanalysis input variable is needed')
-end
 
 % Cleanup
-clc
 close all
+clear all
+clc
+
+% The logfile to analyze
+filePath = '/Users/andrew/Desktop/atrias_2014-05-14-14-12-14.mat';
+[c rs cs] = logfileToStruct(filePath);
+
+rs = shortenData(rs,[32310:35800]);
 
 % Start a figure
 figure
@@ -19,10 +18,10 @@ figure
 % Gait parameters for the SLIP walk paper gait
 r0 = 0.9;   % m
 rRet = 0.15; % m
-q1 = a.ControllerData.q1(1); % rad
-q2 = a.ControllerData.q2(1); % rad
-q3 = a.ControllerData.q3(1); % rad
-q4 = a.ControllerData.q4(1); % rad
+q1 = cs.q1(1); % rad
+q2 = cs.q2(1); % rad
+q3 = cs.q3(1); % rad
+q4 = cs.q4(1); % rad
 
 % Fake a stance phase
 qSl = linspace(q2,q3,50);
@@ -66,20 +65,25 @@ for leg = [1 2] % left and right legs
     xlabel('X Position (m)')
     ylabel('Z Position (m)')
     xlim([-0.5 0.5])
-    % Leg angle and length w.r.t. the torso
-    ql = a.Kinematics.legAngles(:,leg);
-    rl = a.Kinematics.legLength(:,leg);
-    qb = a.Kinematics.bodyPitch(:,1)-3*pi/2;
+    % Motor angle and length w.r.t. the torso
+    if leg == 1
+        qm = rs.qLm;
+        rm = rs.rLm;
+    else
+        qm = rs.qRm;
+        rm = rs.rRm;
+    end
 
-    % Correct for torso pitch
-    ql = ql + qb;
+    % Torso angle
+    qb = rs.qb-3*pi/2;
+
+    % Correct motor angle for torso pitch
+    qm = qm + qb;
 
     % Polar to cartesian coordinates
-    x =  rl.*cos(ql);
-    y = -rl.*sin(ql);
+    x =  rm.*cos(qm);
+    y = -rm.*sin(qm);
 
     % Robot toe trajectory
     plot(x,y,'r')
 end % for leg
-
-end % toeTrajectory

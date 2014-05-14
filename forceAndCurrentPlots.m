@@ -6,7 +6,7 @@ clear all
 clc
 
 % The logfile to analyze
-filePath = '/Users/andrew/Desktop/VPP Analysis/atrias_2014-05-08-10-55-45.mat';
+filePath = '/Users/andrew/Desktop/atrias_2014-05-14-11-09-52.mat';
 [c rs cs] = logfileToStruct(filePath);
 
 % Left leg
