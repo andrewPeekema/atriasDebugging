@@ -16,7 +16,7 @@ close all
 figure
 
 % ATRIAS constant
-rcom = 0.15;
+rcom = 0.12;
 
 for leg = [1 2] % left and right legs
     % Left leg on the left plot, right leg on the right
