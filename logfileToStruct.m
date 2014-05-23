@@ -84,6 +84,12 @@ rs.dqBoomX = v_log__robot__state_xAngleVelocity;
 rs.qT  = v_log__robot__state_bodyPitch;
 rs.dqT = v_log__robot__state_bodyPitchVelocity;
 
+% Hip Data
+rs.qLh  = v_log__robot__state_lLegBodyAngle;
+rs.dqLh = v_log__robot__state_lLegBodyVelocity;
+rs.qRh  = v_log__robot__state_rLegBodyAngle;
+rs.dqRh = v_log__robot__state_rLegBodyVelocity;
+
 % The robot state time vector (ms)
 rs.time = 1000*v_log__robot__state___time;
 
