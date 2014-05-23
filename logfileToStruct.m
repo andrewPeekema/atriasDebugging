@@ -74,6 +74,12 @@ rs.cmdLB = v_log__robot__state_lBClampedCmd;
 rs.cmdRA = v_log__robot__state_rAClampedCmd;
 rs.cmdRB = v_log__robot__state_rBClampedCmd;
 
+% Boom data
+rs.qBoom   = v_log__robot__state_boomAngle;
+rs.dqBoom  = v_log__robot__state_boomAngleVelocity;
+rs.qBoomX  = v_log__robot__state_xAngle;
+rs.dqBoomX = v_log__robot__state_xAngleVelocity;
+
 % The robot state time vector (ms)
 rs.time = 1000*v_log__robot__state___time;
 
