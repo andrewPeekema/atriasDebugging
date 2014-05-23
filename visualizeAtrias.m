@@ -12,7 +12,7 @@ rs = shortenData(rs,[39440:73270]);
 
 
 %% Generate the kinematics
-syms qb1 qb2 real
+syms qb1 qb2 qt real
 % The origin (x pointing "up" along the boom support)
 f0 = SE3([0 0 0 0 -pi/2 0]);
 
@@ -22,14 +22,17 @@ l1 = SerialLink(f0, [qb1 0 0], 1.005, 0.025);
 % The second link (boom pitch)
 l2 = SerialLink(l1.h1f0, [0 0 qb2], 2.388, 0.05);
 
-% The third link (ATRIAS torso)
-l3 = SerialLink(l2.h1f0, [0 0 -pi+deg2rad(82.72)], 0.417, 0.17);
+% The third link (torso rotation)
+l3 = SerialLink(l2.h1f0, [qt 0 0], 0, 0);
+
+% Fourth link (torso)
+l4 = SerialLink(l3.h1f0, [0 0 -pi+deg2rad(82.72)], 0.417, 0.17);
 
 
 %% Plot the links
 l1.plot
 l2.plot
-l3.plot
+l4.plot
 
 % Make sure 1 unit is the same distance on each axis
 axis equal
@@ -44,20 +47,26 @@ view([-37.5,10])
 % Get link center functions
 g1 = l1.plotFun;
 g2 = l2.plotFun;
-g3 = l3.plotFun;
+g4 = l4.plotFun;
 
 % Skip datapoints by this amount
 frameStep = 15;
 
 % Iterate over the states
 for it = 1:frameStep:length(rs.time)
+    % Angles with coordinate corrections
     qb1 = rs.qBoomX(it);        % Boom angle
     qb2 = -(rs.qBoom(it)-pi/2); % Boom pitch
+    qt  = -(rs.qT(it)-3*pi/2);     % Torso angle
 
     % Plot links
+    % First boom link
     l1.plotObj(g1(qb1));
+    % Second boom link
     l2.plotObj(g2(qb1,qb2));
-    l3.plotObj(g3(qb1,qb2));
+    % Torso
+    l4.plotObj(g4(qb1,qb2,qt));
+    % TODO: Hip links
 
     % Draw the figure
     drawnow
