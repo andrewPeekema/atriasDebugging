@@ -17,13 +17,13 @@ syms qb1 qb2 real
 f0 = SE3([0 0 0 0 -pi/2 0]);
 
 % The first link (spin the boom)
-l1 = SerialLink(f0, [qb1 0 0], 1.005);
+l1 = SerialLink(f0, [qb1 0 0], 1.005, 0.025);
 
 % The second link (boom pitch)
-l2 = SerialLink(l1.h1f0, [0 0 qb2], 2.388);
+l2 = SerialLink(l1.h1f0, [0 0 qb2], 2.388, 0.05);
 
 % The third link (ATRIAS torso)
-l3 = SerialLink(l2.h1f0, [0 0 -pi+deg2rad(82.72)], 0.417);
+l3 = SerialLink(l2.h1f0, [0 0 -pi+deg2rad(82.72)], 0.417, 0.17);
 
 
 %% Plot the links
@@ -31,11 +31,15 @@ l1.plot
 l2.plot
 l3.plot
 
-% View the whole workspace
+% Make sure 1 unit is the same distance on each axis
+axis equal
+% Make the whole workspace visible
 dist = 6;
 xlim([-dist/2 dist/2])
 ylim([-dist/2 dist/2])
-zlim([-0.1 dist-0.1])
+zlim([-0.1 2.0])
+% Set the viewpoint
+view([-37.5,10])
 
 % Get link center functions
 g1 = l1.plotFun;
