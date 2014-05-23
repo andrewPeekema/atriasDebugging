@@ -10,10 +10,11 @@ filePath = '/Users/andrew/Desktop/VPP Analysis/atrias_2014-05-08-10-55-45.mat';
 [c rs] = logfileToStruct(filePath);
 rs = shortenData(rs,[39440:73270]);
 
+
 %% Generate the kinematics
 syms qb1 qb2 real
-% The origin (x along the vertical axis)
-f0 = SE3([0 0 0 0 0 pi/2]);
+% The origin (x pointing "up" along the boom support)
+f0 = SE3([0 0 0 0 -pi/2 0]);
 
 % The first link (spin the boom)
 l1 = SerialLink(f0, [qb1 0 0], 1.005);
@@ -24,10 +25,17 @@ l2 = SerialLink(l1.h1f0, [0 0 qb2], 2.388);
 % The third link (ATRIAS torso)
 l3 = SerialLink(l2.h1f0, [0 0 -pi+deg2rad(82.72)], 0.417);
 
+
 %% Plot the links
 l1.plot
 l2.plot
 l3.plot
+
+% View the whole workspace
+dist = 6;
+xlim([-dist/2 dist/2])
+ylim([-dist/2 dist/2])
+zlim([-0.1 dist-0.1])
 
 % Get link center functions
 g1 = l1.plotFun;
@@ -35,7 +43,7 @@ g2 = l2.plotFun;
 g3 = l3.plotFun;
 
 % Skip datapoints by this amount
-frameStep = 10;
+frameStep = 15;
 
 % Iterate over the states
 for it = 1:frameStep:length(rs.time)
