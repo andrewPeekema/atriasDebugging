@@ -238,5 +238,6 @@ if isfield(cs,'controlFxL')
     end % for n
 end % isfield
 
+display(['Finished analyzing: ' filePath])
 
 end % simplifyLogfile
