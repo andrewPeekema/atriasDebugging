@@ -12,7 +12,7 @@ rs = shortenData(rs,[39440:73270]);
 
 
 %% Generate the kinematics
-syms q1 q2 q3 q4 real
+syms q1 q2 q3 q4 q5 q6 q7 q8 q9 real
 % The origin (x pointing "up" along the boom support)
 f0 = SE3([0 0 0 0 -pi/2 0]);
 
@@ -22,7 +22,7 @@ l1 = SerialLink(f0, [q1 0 0], 1.005, 0.025);
 % The second link (boom pitch)
 l2 = SerialLink(l1.h1f0, [0 0 q2], 2.388, 0.05);
 
-% The third link (torso rotation)
+% Rotate to align with the torso
 l3 = SerialLink(l2.h1f0, [q3 0 0], 0, 0);
 
 % Fourth link (torso)
@@ -31,12 +31,25 @@ l4 = SerialLink(l3.h1f0, [0 0 -pi+deg2rad(82.72)], 0.417, 0.17);
 % Right leg hip
 l5 = SerialLink(l4.h1f0, [0 0 q4], 0.183, 0.1);
 
+% Rotate to align the x-y plane with the right leg plane
+l6 = SerialLink(l5.h1f0, [0 pi/2 0], 0, 0);
+
+% Right leg links
+l7  = SerialLink(l6.h1f0,    [0 0 q5], 0.4, 0.015); % A
+l8  = SerialLink(l7.h1f0, [0 0 q6-q5], 0.5, 0.015);
+l9  = SerialLink(l6.h1f0,    [0 0 q6], 0.5, 0.015); % B
+l10 = SerialLink(l9.h1f0, [0 0 q5-q6], 0.5, 0.015);
+
 
 %% Plot the links
 l1.plot
 l2.plot
 l4.plot
 l5.plot
+l7.plot
+l8.plot
+l9.plot
+l10.plot
 
 % Make sure 1 unit is the same distance on each axis
 axis equal
@@ -49,12 +62,17 @@ zlim([-0.1 2.0])
 view([-37.5,10])
 
 % Get link center functions
-g1 = l1.plotFun;
-g2 = l2.plotFun;
-g4 = l4.plotFun;
-g5 = l5.plotFun;
+g1  = l1.plotFun;
+g2  = l2.plotFun;
+g4  = l4.plotFun;
+g5  = l5.plotFun;
+g6  = l6.plotFun;
+g7  = l7.plotFun;
+g8  = l8.plotFun;
+g9  = l9.plotFun;
+g10 = l10.plotFun;
 
-% Skip datapoints by this amount
+% Step this many ms per frame
 frameStep = 15;
 
 % Iterate over the states
@@ -62,8 +80,10 @@ for it = 1:frameStep:length(rs.time)
     % Angles with coordinate corrections
     q1 = rs.qBoomX(it);        % Boom angle
     q2 = -(rs.qBoom(it)-pi/2); % Boom pitch
-    q3  = -(rs.qT(it)-3*pi/2); % Torso angle
+    q3 = -(rs.qT(it)-3*pi/2);  % Torso angle
     q4 = 2*pi - rs.qRh(it);    % Right hip angle
+    q5 = -rs.qRlA(it);         % Right leg A
+    q6 = -rs.qRlB(it);         % Right leg B
 
     % Plot links
     % First boom link
@@ -72,8 +92,14 @@ for it = 1:frameStep:length(rs.time)
     l2.plotObj(g2(q1,q2));
     % Torso
     l4.plotObj(g4(q1,q2,q3));
-    % Hip link
+
+    % Right hip link
     l5.plotObj(g5(q1,q2,q3,q4));
+    % Right leg links
+    l7.plotObj(g7(q1,q2,q3,q4,q5));
+    l8.plotObj(g8(q1,q2,q3,q4,q5,q6));
+    l9.plotObj(g9(q1,q2,q3,q4,q6));
+    l10.plotObj(g10(q1,q2,q3,q4,q5,q6));
 
     % Draw the figure
     drawnow
