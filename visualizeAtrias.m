@@ -105,9 +105,9 @@ for it = 1:frameStep:length(rs.time)
     q4 = 2*pi - rs.qRh(it);    % Right hip angle
     q5 = -rs.qRlA(it);         % Right leg A
     q6 = -rs.qRlB(it);         % Right leg B
-    q7 = 2*pi - rs.qLh(it); % Left hip angle
-    q8 = -rs.qLlA(it);         % Left leg A
-    q9 = -rs.qLlB(it);         % Left leg B
+    q7 = -(2*pi - rs.qLh(it)); % Left hip angle
+    q8 = rs.qLlA(it);         % Left leg A
+    q9 = rs.qLlB(it);         % Left leg B
 
     % Plot links
     % First boom link
