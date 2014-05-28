@@ -8,7 +8,8 @@ clc
 % The logfile to analyze
 filePath = '/Users/andrew/Desktop/VPP Analysis/atrias_2014-05-08-10-55-45.mat';
 [c rs] = logfileToStruct(filePath);
-rs = shortenData(rs,[39440:73270]);
+rs = shortenData(rs,[39440:73270]); % Walking
+%rs = shortenData(rs,[68690:73270]); % Falling
 
 
 %% Generate the kinematics
@@ -21,13 +22,13 @@ f0 = SE3([0 0 0 0 -pi/2 0]);
 l1 = SerialLink(f0, [q1 0 0], 1.005, 0.025);
 
 % The second link (boom pitch)
-l2 = SerialLink(l1.h1f0, [0 0 q2], 2.388, 0.05);
+l2 = SerialLink(l1.h1f0, [0 0 q2], 2.045, 0.05);
 
 % Rotate to align with the torso
 l3 = SerialLink(l2.h1f0, [q3 0 0], 0, 0);
 
 % Fourth link (torso)
-l4 = SerialLink(l3.h1f0, [0 0 -pi+deg2rad(82.72)], 0.417, 0.17);
+l4 = SerialLink(l3.h1f0, [0 0 -pi+deg2rad(82.72)], 0.35, 0.17);
 
 % Right leg hip
 l5 = SerialLink(l4.h1f0, [0 0 q4], 0.183, 0.1);
@@ -105,9 +106,9 @@ for it = 1:frameStep:length(rs.time)
     q4 = 2*pi - rs.qRh(it);    % Right hip angle
     q5 = -rs.qRlA(it);         % Right leg A
     q6 = -rs.qRlB(it);         % Right leg B
-    q7 = -(2*pi - rs.qLh(it)); % Left hip angle
-    q8 = rs.qLlA(it);         % Left leg A
-    q9 = rs.qLlB(it);         % Left leg B
+    q7 = pi - rs.qLh(it);      % Left hip angle
+    q8 = rs.qLlA(it);          % Left leg A
+    q9 = rs.qLlB(it);          % Left leg B
 
     % Plot links
     % First boom link
@@ -116,6 +117,7 @@ for it = 1:frameStep:length(rs.time)
     l2.plotObj(g2(q1,q2));
     % Torso
     l4.plotObj(g4(q1,q2,q3));
+    %l4.showCoord(g4(q1,q2,q3));
 
     % Right hip link
     l5.plotObj(g5(q1,q2,q3,q4));
