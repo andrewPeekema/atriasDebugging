@@ -117,7 +117,6 @@ for it = 1:frameStep:length(rs.time)
     l2.plotObj(g2(q1,q2));
     % Torso
     l4.plotObj(g4(q1,q2,q3));
-    %l4.showCoord(g4(q1,q2,q3));
 
     % Right hip link
     l5.plotObj(g5(q1,q2,q3,q4));
@@ -126,6 +125,8 @@ for it = 1:frameStep:length(rs.time)
     l8.plotObj(g8(q1,q2,q3,q4,q5,q6));
     l9.plotObj(g9(q1,q2,q3,q4,q6));
     l10.plotObj(g10(q1,q2,q3,q4,q5,q6));
+    % The toe
+    l10.traceEnd(g10(q1,q2,q3,q4,q5,q6),'.r');
 
     % Left hip link
     l11.plotObj(g11(q1,q2,q3,q7));
@@ -134,6 +135,8 @@ for it = 1:frameStep:length(rs.time)
     l14.plotObj(g14(q1,q2,q3,q7,q8,q9));
     l15.plotObj(g15(q1,q2,q3,q7,q9));
     l16.plotObj(g16(q1,q2,q3,q7,q8,q9));
+    % The toe
+    l16.traceEnd(g16(q1,q2,q3,q7,q8,q9),'.b');
 
     % Draw the figure
     drawnow
