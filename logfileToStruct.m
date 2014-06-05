@@ -1,5 +1,7 @@
-function [c, rs, cs] = logfileToStruct(filePath)
-% Input: logfile path
+function [c, rs, cs] = logfileToStruct(varargin)
+% Input:
+%     varargin{1} = logfile path (.mat)
+%     varargin{2} = force data path (.txt)
 % Output:
 %     c  = robot constants
 %     rs = robot state struct
@@ -19,10 +21,13 @@ if nargout == 1
     return
 end
 
-
-% Load the logfile
-load(filePath)
-display(['Analyzing: ' filePath])
+% Load the logfile if a path is given
+if length(varargin) >= 1
+    load(varargin{1})
+    display(['Analyzing: ' varargin{1}])
+else
+    return
+end
 
 % General robot state
 % Angles
@@ -102,6 +107,40 @@ rs.qLm = (rs.qLmA+rs.qLmB)/2;
 rs.rLm = cos(rs.qLm-rs.qLmA);
 rs.qRm = (rs.qRmA+rs.qRmB)/2;
 rs.rRm = cos(rs.qRm-rs.qRmA);
+
+
+%% Load the force data if a path is given
+if length(varargin) == 2
+    fpRaw = csvread(varargin{2});
+    fpHz = 200;
+    display(['Analyzing: ' varargin{2}])
+    display(['(Assuming forceplate data was captured at a rate of ' num2str(fpHz) ' Hz)'])
+
+    % Make NaN vectors the same length as rs.time
+    rs.forceplate.fx = NaN(length(rs.time),1);
+    rs.forceplate.fy = NaN(length(rs.time),1);
+    rs.forceplate.fz = NaN(length(rs.time),1);
+
+    % The first forceplate point in terms of the rs index
+    fpI = find(v_log__robot__state_rtOpsState==2,1);
+
+    % If the controller starts as enabled, we didn't catch the beginning of the
+    % controller data and our timing is off
+    if fpI == 1
+        display('WARNING: forceplate data timing is inaccurate')
+    end
+
+    % How many rs samples per one forceplate sample?
+    fpdI = 1000/fpHz;
+
+    % What is the last forceplate sample in terms of the rs index?
+    fpEnd = fpI - 1 + length(fpRaw)*fpdI;
+
+    % Add the force data to the robot state struct
+    rs.forceplate.fx(fpI:fpdI:fpEnd) = fpRaw(:,1);
+    rs.forceplate.fy(fpI:fpdI:fpEnd) = fpRaw(:,2);
+    rs.forceplate.fz(fpI:fpdI:fpEnd) = fpRaw(:,3);
+end
 
 
 %% Controller specific data
@@ -238,6 +277,6 @@ if isfield(cs,'controlFxL')
     end % for n
 end % isfield
 
-display(['Finished analyzing: ' filePath])
+display(['Finished analyzing: ' varargin{1}])
 
 end % simplifyLogfile
