@@ -149,7 +149,7 @@ if nargout == 2
     return
 end
 
-if exist('v_ATCSlipWalking__log_walkingState')
+if exist('v_ATCSlipWalking__log___time')
     % The controller time vector (ms)
     cs.time = 1000*v_ATCSlipWalking__log___time;
     % Single/Double support, left/right legs
@@ -170,13 +170,7 @@ if exist('v_ATCSlipWalking__log_walkingState')
     cs.computeFzL = NaN(rsTimeN);
     cs.computeFxR = NaN(rsTimeN);
     cs.computeFzR = NaN(rsTimeN);
-else
-    display('simplifyLogfile warning: Unknown controller data format')
-end
 
-
-% If relevant, get timing data
-if isfield(cs,'state')
     % Find event transitions in controller time
     cs.event = diff(cs.state);
 
@@ -240,10 +234,6 @@ if isfield(cs,'state')
         cs.DS(n,:) = [cs.td(n) cs.to(n+1)];
     end
 
-end % isfield
-
-% If relevant, get force data
-if isfield(cs,'controlFxL')
     % Left leg force controller
     forceContTime = v_ATCSlipWalking__ascLegForceL__log___time*1000;
     % For all log times
@@ -275,7 +265,52 @@ if isfield(cs,'controlFxL')
             cs.computeFzR(rsN) = v_ATCSlipWalking__ascLegForceR__log_compute__fz(n);
         end
     end % for n
-end % isfield
+
+elseif exist('v_ATCForceControlDemo__log___time')
+    % The controller time vector (ms)
+    cs.time = 1000*v_ATCForceControlDemo__log___time;
+    rsTimeN = [1 length(rs.time)];
+    cs.fxDes = NaN(rsTimeN);
+    cs.fzDes = NaN(rsTimeN);
+    cs.computeFxL = NaN(rsTimeN);
+    cs.computeFzL = NaN(rsTimeN);
+
+    % Parse the main controller data
+    % For all log times
+    for n = 1:length(cs.time)
+        % The robot state time index for this robot state time
+        rsN = find(cs.time(n) == rs.time,1,'last');
+        % If this force controller time is in the robot state
+        if ~isempty(rsN)
+            % Store the data
+            cs.fxDes(rsN) = v_ATCForceControlDemo__log_fxDes(n);
+            cs.fzDes(rsN) = v_ATCForceControlDemo__log_fzDes(n);
+        end
+    end % for n
+
+    % Parse the force controller data
+    % Left leg force controller
+    forceContTime = v_ATCForceControlDemo__ascLegForceL__log___time*1000;
+    % For all log times
+    for n = 1:length(forceContTime)
+        % The robot state time index for this robot state time
+        rsN = find(forceContTime(n) == rs.time,1,'last');
+        % If this force controller time is in the robot state
+        if ~isempty(rsN)
+            % Store the contol data
+            cs.controlFxL(rsN) = v_ATCForceControlDemo__ascLegForceL__log_control__fx(n);
+            cs.controlFzL(rsN) = v_ATCForceControlDemo__ascLegForceL__log_control__fz(n);
+            cs.computeFxL(rsN) = v_ATCForceControlDemo__ascLegForceL__log_compute__fx(n);
+            cs.computeFzL(rsN) = v_ATCForceControlDemo__ascLegForceL__log_compute__fz(n);
+        end
+    end % for n
+
+else
+    display('WARNING: Unknown controller data format')
+
+end
+
+
 
 display(['Finished analyzing: ' varargin{1}])
 
