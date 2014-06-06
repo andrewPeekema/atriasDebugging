@@ -129,6 +129,7 @@ if length(varargin) == 2
     rs.forceplate.fx = NaN(length(rs.time),1);
     rs.forceplate.fy = NaN(length(rs.time),1);
     rs.forceplate.fz = NaN(length(rs.time),1);
+    rs.forceplate.f  = NaN(length(rs.time),1);
 
     % The first forceplate point in terms of the rs index
     fpI = find(v_log__robot__state_rtOpsState==2,1);
@@ -149,6 +150,7 @@ if length(varargin) == 2
     rs.forceplate.fx(fpI:fpdI:fpEnd) = fpRaw(:,1);
     rs.forceplate.fy(fpI:fpdI:fpEnd) = fpRaw(:,2);
     rs.forceplate.fz(fpI:fpdI:fpEnd) = fpRaw(:,3);
+    rs.forceplate.f = (rs.forceplate.fx.^2 + rs.forceplate.fy.^2 + rs.forceplate.fz.^2).^0.5;
 end
 
 
@@ -301,36 +303,30 @@ elseif exist('v_ATCForceControlDemo__log___time')
     computeFxL = NaN(rsTimeN);
     computeFzL = NaN(rsTimeN);
 
-    % Parse the main controller data
-    % Find which robot state times have a subcontroller time
-    rsSubBool = ismember(rs.time, cs.time);
-    % Get the robot state indices for those times
-    rsIndices = find(rsSubBool)';
-    % For each robot state time that has a subcontroller time
-    parfor rsN = rsIndices
-        % Find the subcontroller time for this robot state time
-        n = find(rs.time(rsN) == cs.time,1,'last');
-        % Store the data
-        fxDes(rsN) = v_ATCForceControlDemo__log_fxDes(n);
-        fzDes(rsN) = v_ATCForceControlDemo__log_fzDes(n);
-    end
-
-    % Parse the force controller data
+    % Space controller data out
     % Left leg force controller
     forceContTime = v_ATCForceControlDemo__ascLegForceL__log___time*1000;
-    % Find which robot state times have a subcontroller time
-    rsSubBool = ismember(rs.time, forceContTime);
-    % Get the robot state indices for those times
-    rsIndices = find(rsSubBool)';
-    % For each robot state time that has a subcontroller time
-    parfor rsN = rsIndices
+    % For each robot state time
+    parfor rsN = 1:length(rs.time)
+        % Find the subcontroller time for this robot state time
+        n = find(rs.time(rsN) == cs.time,1,'last');
+        % If the subcontroller has a time for this robot state time
+        if ~isempty(n)
+            % Store the data
+            fxDes(rsN) = v_ATCForceControlDemo__log_fxDes(n);
+            fzDes(rsN) = v_ATCForceControlDemo__log_fzDes(n);
+        end
+
         % Find the subcontroller time for this robot state time
         n = find(rs.time(rsN) == forceContTime,1,'last');
-        % Store the contol data
-        controlFxL(rsN) = v_ATCForceControlDemo__ascLegForceL__log_control__fx(n);
-        controlFzL(rsN) = v_ATCForceControlDemo__ascLegForceL__log_control__fz(n);
-        computeFxL(rsN) = v_ATCForceControlDemo__ascLegForceL__log_compute__fx(n);
-        computeFzL(rsN) = v_ATCForceControlDemo__ascLegForceL__log_compute__fz(n);
+        % If the subcontroller has a time for this robot state time
+        if ~isempty(n)
+            % Store the contol data
+            controlFxL(rsN) = v_ATCForceControlDemo__ascLegForceL__log_control__fx(n);
+            controlFzL(rsN) = v_ATCForceControlDemo__ascLegForceL__log_control__fz(n);
+            computeFxL(rsN) = v_ATCForceControlDemo__ascLegForceL__log_compute__fx(n);
+            computeFzL(rsN) = v_ATCForceControlDemo__ascLegForceL__log_compute__fz(n);
+        end
     end
 
     % Store the variables in the controller state struct

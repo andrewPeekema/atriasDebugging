@@ -6,41 +6,43 @@ clear all
 clc
 
 % The logfile to analyze
-directory = '/home/andrew/ForceControlTesting/';
-filePath = [directory 'atrias_2014-06-05-14-28-14.mat'];
-filePath2 = [directory 'force_test00004.txt'];
+directory = '/Users/andrew/Desktop/Force Control Testing/';
+filePath = [directory 'atrias_2014-06-06-12-59-10.mat'];
+filePath2 = [directory 'force_test00007.txt'];
 [c rs cs] = logfileToStruct(filePath,filePath2);
+
+% Find the world forces
+force = rsToWorldForce(rs, 1600);
 
 %rs = shortenData(rs,[32310:35800]);
 
-figure(1)
-plot(rs.time, rs.forceplate.fx,'.');
+figure
+plot(rs.time, rs.forceplate.f,'.');
 hold on
-plot(rs.time, rs.forceplate.fy,'.');
-plot(rs.time, rs.forceplate.fz,'.');
-plot(rs.time, cs.fzDes,'b')
+%plot(rs.time, cs.fzDes,'b')
 plot(rs.time, -cs.computeFzL,'r')
+plot(rs.time, -force.LF.Fz)
 
 title('Feedback Linearization Force Control')
 xlabel('Time (s)')
 ylabel('Force (N)')
 
 
+%{
 %% The logfile to analyze
-filePath = [directory 'atrias_2014-06-05-14-34-34.mat'];
-filePath2 = [directory 'force_test00005.txt'];
+filePath = [directory 'atrias_2014-06-06-12-48-14.mat'];
+filePath2 = [directory 'force_test00006.txt'];
 [c rs cs] = logfileToStruct(filePath,filePath2);
 
 %rs = shortenData(rs,[32310:35800]);
 
-figure(2)
-plot(rs.time, rs.forceplate.fx,'.');
+figure
+plot(rs.time, rs.forceplate.f,'.');
 hold on
-plot(rs.time, rs.forceplate.fy,'.');
-plot(rs.time, rs.forceplate.fz,'.');
 plot(rs.time, -cs.controlFzL,'b')
 plot(rs.time, -cs.computeFzL,'r')
 
 title('PD Force Control')
 xlabel('Time (s)')
 ylabel('Force (N)')
+%}
