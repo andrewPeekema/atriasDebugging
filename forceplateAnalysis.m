@@ -6,8 +6,9 @@ clear all
 clc
 
 % The logfile to analyze
-filePath = '/Users/andrew/Desktop/Force Control Testing/atrias_2014-06-05-14-28-14.mat';
-filePath2 = '/Users/andrew/Desktop/Force Control Testing/force_test00004.txt';
+directory = '/home/andrew/ForceControlTesting/';
+filePath = [directory 'atrias_2014-06-05-14-28-14.mat'];
+filePath2 = [directory 'force_test00004.txt'];
 [c rs cs] = logfileToStruct(filePath,filePath2);
 
 %rs = shortenData(rs,[32310:35800]);
@@ -26,8 +27,8 @@ ylabel('Force (N)')
 
 
 %% The logfile to analyze
-filePath = '/Users/andrew/Desktop/Force Control Testing/atrias_2014-06-05-14-34-34.mat';
-filePath2 = '/Users/andrew/Desktop/Force Control Testing/force_test00005.txt';
+filePath = [directory 'atrias_2014-06-05-14-34-34.mat'];
+filePath2 = [directory 'force_test00005.txt'];
 [c rs cs] = logfileToStruct(filePath,filePath2);
 
 %rs = shortenData(rs,[32310:35800]);

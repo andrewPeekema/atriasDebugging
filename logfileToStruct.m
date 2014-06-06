@@ -23,6 +23,15 @@ end
 
 % Load the logfile if a path is given
 if length(varargin) >= 1
+    % Any structs that are loaded need to be declared beforehand in order to be
+    % used by parfor
+    v_ATCForceControlDemo__log_fxDes = [];
+    v_ATCForceControlDemo__log_fzDes = [];
+    v_ATCForceControlDemo__ascLegForceL__log_control__fx = [];
+    v_ATCForceControlDemo__ascLegForceL__log_control__fz = [];
+    v_ATCForceControlDemo__ascLegForceL__log_compute__fx = [];
+    v_ATCForceControlDemo__ascLegForceL__log_compute__fz = [];
+    % Load the logfile
     load(varargin{1})
     display(['Analyzing: ' varargin{1}])
 else
@@ -161,15 +170,16 @@ if exist('v_ATCSlipWalking__log___time')
     cs.q3   = v_ATCSlipWalking__input_q3;
     cs.q4   = v_ATCSlipWalking__input_q4;
     cs.r0   = v_ATCSlipWalking__input_leg__length;
+    % Preallocate
     rsTimeN = [1 length(rs.time)];
-    cs.controlFxL = NaN(rsTimeN);
-    cs.controlFzL = NaN(rsTimeN);
-    cs.controlFxR = NaN(rsTimeN);
-    cs.controlFzR = NaN(rsTimeN);
-    cs.computeFxL = NaN(rsTimeN);
-    cs.computeFzL = NaN(rsTimeN);
-    cs.computeFxR = NaN(rsTimeN);
-    cs.computeFzR = NaN(rsTimeN);
+    controlFxL = NaN(rsTimeN);
+    controlFzL = NaN(rsTimeN);
+    controlFxR = NaN(rsTimeN);
+    controlFzR = NaN(rsTimeN);
+    computeFxL = NaN(rsTimeN);
+    computeFzL = NaN(rsTimeN);
+    computeFxR = NaN(rsTimeN);
+    computeFzR = NaN(rsTimeN);
 
     % Find event transitions in controller time
     cs.event = diff(cs.state);
@@ -236,74 +246,100 @@ if exist('v_ATCSlipWalking__log___time')
 
     % Left leg force controller
     forceContTime = v_ATCSlipWalking__ascLegForceL__log___time*1000;
-    % For all log times
-    for n = 1:length(forceContTime)
-        % The robot state time index for this robot state time
-        rsN = find(forceContTime(n) == rs.time,1,'last');
-        % If this force controller time is in the robot state
-        if ~isempty(rsN)
-            % Store the contol data
-            cs.controlFxL(rsN) = v_ATCSlipWalking__ascLegForceL__log_control__fx(n);
-            cs.controlFzL(rsN) = v_ATCSlipWalking__ascLegForceL__log_control__fz(n);
-            cs.computeFxL(rsN) = v_ATCSlipWalking__ascLegForceL__log_compute__fx(n);
-            cs.computeFzL(rsN) = v_ATCSlipWalking__ascLegForceL__log_compute__fz(n);
-        end
-    end % for n
+    % Find which robot state times have a subcontroller time
+    rsSubBool = ismember(rs.time, forceContTime);
+    % Get the robot state indices for those times
+    rsIndices = find(rsSubBool)';
+    % For each robot state time that has a subcontroller time
+    for rsN = rsIndices
+        % Find the subcontroller time for this robot state time
+        n = find(rs.time(rsN) == forceContTime,1,'last');
+        % Store the control data
+        controlFxL(rsN) = v_ATCSlipWalking__ascLegForceL__log_control__fx(n);
+        controlFzL(rsN) = v_ATCSlipWalking__ascLegForceL__log_control__fz(n);
+        computeFxL(rsN) = v_ATCSlipWalking__ascLegForceL__log_compute__fx(n);
+        computeFzL(rsN) = v_ATCSlipWalking__ascLegForceL__log_compute__fz(n);
+    end
 
     % Right leg force controller
     forceContTime = v_ATCSlipWalking__ascLegForceR__log___time*1000;
-    % For all log times
-    for n = 1:length(forceContTime)
-        % The robot state time index for this robot state time
-        rsN = find(forceContTime(n) == rs.time,1,'last');
-        % If this force controller time is in the robot state
-        if ~isempty(rsN)
-            % Store the contol data
-            cs.controlFxR(rsN) = v_ATCSlipWalking__ascLegForceR__log_control__fx(n);
-            cs.controlFzR(rsN) = v_ATCSlipWalking__ascLegForceR__log_control__fz(n);
-            cs.computeFxR(rsN) = v_ATCSlipWalking__ascLegForceR__log_compute__fx(n);
-            cs.computeFzR(rsN) = v_ATCSlipWalking__ascLegForceR__log_compute__fz(n);
-        end
-    end % for n
+    % Find which robot state times have a subcontroller time
+    rsSubBool = ismember(rs.time, forceContTime);
+    % Get the robot state indices for those times
+    rsIndices = find(rsSubBool)';
+    % For each robot state time that has a subcontroller time
+    for rsN = rsIndices
+        % Find the subcontroller time for this robot state time
+        n = find(rs.time(rsN) == forceContTime,1,'last');
+        % Store the control data
+        controlFxR(rsN) = v_ATCSlipWalking__ascLegForceR__log_control__fx(n);
+        controlFzR(rsN) = v_ATCSlipWalking__ascLegForceR__log_control__fz(n);
+        computeFxR(rsN) = v_ATCSlipWalking__ascLegForceR__log_compute__fx(n);
+        computeFzR(rsN) = v_ATCSlipWalking__ascLegForceR__log_compute__fz(n);
+    end
+
+    % Store the forces in the controller state struct
+    cs.controlFxL = controlFxL;
+    cs.controlFzL = controlFzL;
+    cs.computeFxL = computeFxL;
+    cs.computeFzL = computeFzL;
+    cs.controlFxR = controlFxR;
+    cs.controlFzR = controlFzR;
+    cs.computeFxR = computeFxR;
+    cs.computeFzR = computeFzR;
+
 
 elseif exist('v_ATCForceControlDemo__log___time')
     % The controller time vector (ms)
     cs.time = 1000*v_ATCForceControlDemo__log___time;
     rsTimeN = [1 length(rs.time)];
-    cs.fxDes = NaN(rsTimeN);
-    cs.fzDes = NaN(rsTimeN);
-    cs.computeFxL = NaN(rsTimeN);
-    cs.computeFzL = NaN(rsTimeN);
+    % Preallocate
+    fxDes = NaN(rsTimeN);
+    fzDes = NaN(rsTimeN);
+    controlFxL = NaN(rsTimeN);
+    controlFzL = NaN(rsTimeN);
+    computeFxL = NaN(rsTimeN);
+    computeFzL = NaN(rsTimeN);
 
     % Parse the main controller data
-    % For all log times
-    for n = 1:length(cs.time)
-        % The robot state time index for this robot state time
-        rsN = find(cs.time(n) == rs.time,1,'last');
-        % If this force controller time is in the robot state
-        if ~isempty(rsN)
-            % Store the data
-            cs.fxDes(rsN) = v_ATCForceControlDemo__log_fxDes(n);
-            cs.fzDes(rsN) = v_ATCForceControlDemo__log_fzDes(n);
-        end
-    end % for n
+    % Find which robot state times have a subcontroller time
+    rsSubBool = ismember(rs.time, cs.time);
+    % Get the robot state indices for those times
+    rsIndices = find(rsSubBool)';
+    % For each robot state time that has a subcontroller time
+    parfor rsN = rsIndices
+        % Find the subcontroller time for this robot state time
+        n = find(rs.time(rsN) == cs.time,1,'last');
+        % Store the data
+        fxDes(rsN) = v_ATCForceControlDemo__log_fxDes(n);
+        fzDes(rsN) = v_ATCForceControlDemo__log_fzDes(n);
+    end
 
     % Parse the force controller data
     % Left leg force controller
     forceContTime = v_ATCForceControlDemo__ascLegForceL__log___time*1000;
-    % For all log times
-    for n = 1:length(forceContTime)
-        % The robot state time index for this robot state time
-        rsN = find(forceContTime(n) == rs.time,1,'last');
-        % If this force controller time is in the robot state
-        if ~isempty(rsN)
-            % Store the contol data
-            cs.controlFxL(rsN) = v_ATCForceControlDemo__ascLegForceL__log_control__fx(n);
-            cs.controlFzL(rsN) = v_ATCForceControlDemo__ascLegForceL__log_control__fz(n);
-            cs.computeFxL(rsN) = v_ATCForceControlDemo__ascLegForceL__log_compute__fx(n);
-            cs.computeFzL(rsN) = v_ATCForceControlDemo__ascLegForceL__log_compute__fz(n);
-        end
-    end % for n
+    % Find which robot state times have a subcontroller time
+    rsSubBool = ismember(rs.time, forceContTime);
+    % Get the robot state indices for those times
+    rsIndices = find(rsSubBool)';
+    % For each robot state time that has a subcontroller time
+    parfor rsN = rsIndices
+        % Find the subcontroller time for this robot state time
+        n = find(rs.time(rsN) == forceContTime,1,'last');
+        % Store the contol data
+        controlFxL(rsN) = v_ATCForceControlDemo__ascLegForceL__log_control__fx(n);
+        controlFzL(rsN) = v_ATCForceControlDemo__ascLegForceL__log_control__fz(n);
+        computeFxL(rsN) = v_ATCForceControlDemo__ascLegForceL__log_compute__fx(n);
+        computeFzL(rsN) = v_ATCForceControlDemo__ascLegForceL__log_compute__fz(n);
+    end
+
+    % Store the variables in the controller state struct
+    cs.fxDes      = fxDes;
+    cs.fzDes      = fzDes;
+    cs.controlFxL = controlFxL;
+    cs.controlFzL = controlFzL;
+    cs.computeFxL = computeFxL;
+    cs.computeFzL = computeFzL;
 
 else
     display('WARNING: Unknown controller data format')
