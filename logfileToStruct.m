@@ -126,10 +126,10 @@ if length(varargin) == 2
     display(['(Assuming forceplate data was captured at a rate of ' num2str(fpHz) ' Hz)'])
 
     % Make NaN vectors the same length as rs.time
-    rs.forceplate.fx = NaN(length(rs.time),1);
-    rs.forceplate.fy = NaN(length(rs.time),1);
-    rs.forceplate.fz = NaN(length(rs.time),1);
-    rs.forceplate.f  = NaN(length(rs.time),1);
+    rs.forceplateFx = NaN(length(rs.time),1);
+    rs.forceplateFy = NaN(length(rs.time),1);
+    rs.forceplateFz = NaN(length(rs.time),1);
+    rs.forceplateF  = NaN(length(rs.time),1);
 
     % The first forceplate point in terms of the rs index
     fpI = find(v_log__robot__state_rtOpsState==2,1);
@@ -147,10 +147,10 @@ if length(varargin) == 2
     fpEnd = fpI - 1 + length(fpRaw)*fpdI;
 
     % Add the force data to the robot state struct
-    rs.forceplate.fx(fpI:fpdI:fpEnd) = fpRaw(:,1);
-    rs.forceplate.fy(fpI:fpdI:fpEnd) = fpRaw(:,2);
-    rs.forceplate.fz(fpI:fpdI:fpEnd) = fpRaw(:,3);
-    rs.forceplate.f = (rs.forceplate.fx.^2 + rs.forceplate.fy.^2 + rs.forceplate.fz.^2).^0.5;
+    rs.forceplateFx(fpI:fpdI:fpEnd) = fpRaw(:,1);
+    rs.forceplateFy(fpI:fpdI:fpEnd) = fpRaw(:,2);
+    rs.forceplateFz(fpI:fpdI:fpEnd) = fpRaw(:,3);
+    rs.forceplateF = (rs.forceplateFx.^2 + rs.forceplateFy.^2 + rs.forceplateFz.^2).^0.5;
 end
 
 
@@ -162,7 +162,7 @@ end
 
 if exist('v_ATCSlipWalking__log___time')
     % The controller time vector (ms)
-    cs.time = 1000*v_ATCSlipWalking__log___time;
+    atcTime = 1000*v_ATCSlipWalking__log___time;
     % Single/Double support, left/right legs
     cs.state = double(v_ATCSlipWalking__log_walkingState);
     cs.rvpp = v_ATCSlipWalking__input_rvpp;
@@ -200,7 +200,7 @@ if exist('v_ATCSlipWalking__log___time')
         % If there is an event
         if cs.event(n) ~= 0
             % Find the robot state index for this log time
-            rsN = find(cs.time(n) == rs.time,1,'last');
+            rsN = find(atcTime(n) == rs.time,1,'last');
         end
 
         % Each type of event
@@ -293,7 +293,7 @@ if exist('v_ATCSlipWalking__log___time')
 
 elseif exist('v_ATCForceControlDemo__log___time')
     % The controller time vector (ms)
-    cs.time = 1000*v_ATCForceControlDemo__log___time;
+    atcTime = 1000*v_ATCForceControlDemo__log___time;
     rsTimeN = [1 length(rs.time)];
     % Preallocate
     fxDes = NaN(rsTimeN);
@@ -309,7 +309,7 @@ elseif exist('v_ATCForceControlDemo__log___time')
     % For each robot state time
     parfor rsN = 1:length(rs.time)
         % Find the subcontroller time for this robot state time
-        n = find(rs.time(rsN) == cs.time,1,'last');
+        n = find(rs.time(rsN) == atcTime,1,'last');
         % If the subcontroller has a time for this robot state time
         if ~isempty(n)
             % Store the data

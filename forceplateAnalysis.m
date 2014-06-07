@@ -11,17 +11,25 @@ filePath = [directory 'atrias_2014-06-06-12-59-10.mat'];
 filePath2 = [directory 'force_test00007.txt'];
 [c rs cs] = logfileToStruct(filePath,filePath2);
 
-% Find the world forces
-force = rsToWorldForce(rs, 1600);
+% Crop to the force test
+rs = shortenData(rs,[25490:50730]);
+cs = shortenData(cs,[25490:50730]);
 
-%rs = shortenData(rs,[32310:35800]);
+% Fit the force data
+bestFit = fitForceData(rs);
+
+% Find the world forces
+force = rsToWorldForce(rs, bestFit.ks);
+LFz = bestFit.y0 - force.LF.Fz;
+
+
 
 figure
-plot(rs.time, rs.forceplate.f,'.');
+plot(rs.time, rs.forceplateF,'.');
 hold on
 %plot(rs.time, cs.fzDes,'b')
 plot(rs.time, -cs.computeFzL,'r')
-plot(rs.time, -force.LF.Fz)
+plot(rs.time, LFz,'g')
 
 title('Feedback Linearization Force Control')
 xlabel('Time (s)')
@@ -37,7 +45,7 @@ filePath2 = [directory 'force_test00006.txt'];
 %rs = shortenData(rs,[32310:35800]);
 
 figure
-plot(rs.time, rs.forceplate.f,'.');
+plot(rs.time, rs.forceplateF,'.');
 hold on
 plot(rs.time, -cs.controlFzL,'b')
 plot(rs.time, -cs.computeFzL,'r')
