@@ -1,6 +1,7 @@
-function sol = fitForceData(rs)
+function sol = fitForceData(rs,points)
 % Input:
 %   rs: a robot state struct
+%   points: the points that should be matched
 % Output:
 %   sol.y0: an offset
 %   sol.ks: The spring constant that best fits the data
@@ -17,6 +18,7 @@ options = optimset(...
 % Remove all NaN samples
 fpI = ~isnan(rs.forceplateF);
 F = rs.forceplateF(fpI);
+rs.time = rs.time(fpI);
 rs.qLmA = rs.qLmA(fpI);
 rs.qLmB = rs.qLmB(fpI);
 rs.qRmA = rs.qRmA(fpI);
@@ -27,6 +29,11 @@ rs.qRlA = rs.qRlA(fpI);
 rs.qRlB = rs.qRlB(fpI);
 rs.qb   = rs.qb(fpI);
 
+% Convert from time to indices
+for x = 1:length(points)
+    I(x) = find(round(rs.time) == points(x),1,'first');
+end
+points = I';
 
 % Best guess for spring stiffness and force offset
 guess = [1600;
@@ -46,7 +53,7 @@ function s = sumOfSquares(Guess)
     LFz = Guess(2) - force.LF.Fz;
 
     % Sum of squares error
-    s = sum((LFz - F).^2);
+    s = sum((LFz(points) - F(points)).^2);
 end % function sumOfSquares
 
 end % function fitForceData
