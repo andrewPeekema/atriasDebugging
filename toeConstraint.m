@@ -1,3 +1,4 @@
+function toeConstraint
 % Solve for hip angles given the rest of the angles and a constraint cylinder
 
 % Get the toe equations
@@ -7,30 +8,74 @@
 lR = 2.197; % initial guess [m]
 rR = 1.833; % initial guess [m]
 
-% TODO: Wrap the below lines in a loop over the state angles and save qHip in a
-% matrix indexed by the state angles
+% Angle and length discritization
+angleD = deg2rad(3); % [rad]
+linD   = 0.01; % [m]
 
-% Angles
+% Angle ranges
 q1 = 0; % Boom yaw
-q2 = 0.1; % Boom roll
-q3 = 0.2; % Boom pitch
-%q4 = 0; % Right hip angle
-q5 = 3*pi/4; % Right leg A
-q6 = 5*pi/4; % Right leg B
-%q7 = 0; % Left hip angle
-q8 = 3*pi/4; % Left leg A
-q9 = 5*pi/4; % Left leg B
-syms q4 q7 real; % The hip angles are unknown
+q2 = linspace(0, 0.2, floor((0.2-0)/angleD)); % Boom roll
+q3 = linspace(-pi/4, pi/4, floor((pi/4+pi/4)/angleD)); % Boom pitch
+% Virtual leg length and angle
+ql = linspace(0.4, 0.99, floor((0.99-0.4)/angleD));
+qq = linspace(pi/2, 3*pi/2, floor((3*pi/2-pi/2)/linD));
+% Unknown right and left hip angles (respectively)
+%syms q4 q7 real;
 
-% Left toe
-% Get equations for the toe position in terms of the hip angle
-lXyz = lToeXyz(q1,q2,q3,q7,q8,q9);
-rXyz = rToeXyz(q1,q2,q3,q4,q5,q6);
+% Preallocate qHip
+qLHip = NaN(length(q2),length(q3),length(ql),length(qq));
+qRHip = NaN(length(q2),length(q3),length(ql),length(qq));
 
-% Constrain the toe to a cylinder (x^2+y^2=r^2)
-lEqn = matlabFunction(lXyz(1)^2 + lXyz(2)^2 - lR^2);
-rEqn = matlabFunction(rXyz(1)^2 + rXyz(2)^2 - rR^2);
+% fmincon options
+options = optimoptions('fmincon','Display','notify-detailed');
 
-% Numerically solve for the hip angles
-qLHip = fsolve(lEqn,0);
-qRHip = fsolve(lEqn,0);
+% Iterate over the states
+tic
+for q2i = 1:length(q2) % Boom roll
+display(['q2i: ' num2str(q2i)]);
+toc
+
+parfor q3i = 1:length(q3) % Boom pitch
+
+% Preallocate
+qLHipTemp = NaN(length(ql),length(qq));
+qRHipTemp = NaN(length(ql),length(qq));
+
+for qli = 1:length(ql) % Virtual leg length
+for qqi = 1:length(qq) % Virtual leg angle
+
+    % Solve for link angles using the virtual leg angle and length
+    q5 = qq(qqi) - acos(ql(qli)); % Right leg A
+    q6 = qq(qqi) + acos(ql(qli)); % Right leg B
+    q8 = q5; % Left leg A
+    q9 = q6; % Left leg B
+
+    % Numerically solve for the hip angles given bounds
+    qLHipTemp(qli,qqi) = fmincon(@(q7)lHipEquation(q7),0,[1;-1],[pi/2 pi/2],[],[],[],[],[],options);
+    qRHipTemp(qli,qqi) = fmincon(@(q4)rHipEquation(q4),0,[1;-1],[pi/2 pi/2],[],[],[],[],[],options);
+
+end % Virtual leg angle
+end % Virtual leg length
+
+% Save the hip angles
+qLHip(q2i,q3i,:,:) = qLHipTemp;
+qRHip(q2i,q3i,:,:) = qRHipTemp;
+
+end % Boom pitch
+end % Boom roll
+
+function lDelta = lHipEquation(q7)
+    % Solve for the xyz foot placement
+    lXyz = lToeXyz(q1,q2(q2i),q3(q3i),q7,q8,q9);
+    % Solve for how far away the foot is from the cylinder constraint (x^2+y^2=r^2)
+    lDelta = (lXyz(1)^2 + lXyz(2)^2 - lR^2)^2;
+end
+
+function rDelta = rHipEquation(q4)
+    % Solve for the xyz foot placement
+    rXyz = rToeXyz(q1,q2(q2i),q3(q3i),q4,q5,q6);
+    % Solve for how far away the foot is from the cylinder constraint (x^2+y^2=r^2)
+    rDelta = (rXyz(1)^2 + rXyz(2)^2 - rR^2)^2;
+end
+
+end % toeConstraint

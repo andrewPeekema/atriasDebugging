@@ -91,16 +91,27 @@ g16 = l16.plotFun;
 % Step this many ms per frame
 frameStep = 15;
 
+%% Angles
+%q1 = 0; % Boom yaw
+%q2 = 0.1; % Boom roll
+%q3 = 0.2; % Boom pitch
+%q4 = 0; % Right hip angle
+%q5 = 3*pi/4; % Right leg A
+%q6 = 5*pi/4; % Right leg B
+%q7 = 0; % Left hip angle
+%q8 = 3*pi/4; % Left leg A
+%q9 = 5*pi/4; % Left leg B
+
 % Angles
 q1 = 0; % Boom yaw
-q2 = 0.1; % Boom roll
-q3 = 0.2; % Boom pitch
+q2 = 0; % Boom roll
+q3 = -0.7854; % Boom pitch
 q4 = 0; % Right hip angle
-q5 = 3*pi/4; % Right leg A
-q6 = 5*pi/4; % Right leg B
+q5 = 0.4155; % Right leg A
+q6 = 2.7301; % Right leg B
 q7 = 0; % Left hip angle
-q8 = 3*pi/4; % Left leg A
-q9 = 5*pi/4; % Left leg B
+q8 = q5; % Left leg A
+q9 = q6; % Left leg B
 
 % Plot links
 % First boom link
