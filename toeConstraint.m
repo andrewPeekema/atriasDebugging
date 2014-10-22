@@ -1,81 +1,36 @@
-% Generate equations to constrain the toe to a cylinder
+% Solve for hip angles given the rest of the angles and a constraint cylinder
 
-% Clenaup
-close all
-clear all
-clc
+% Get the toe equations
+[lToeXyz,rToeXyz] = toeConstraintEquations;
 
-%% Generate the forward kinematics
-display('Generating the forward kinematics...')
-syms q1 q2 q3 q4 q5 q6 q7 q8 q9 real
-% The origin (x pointing "up" along the boom support)
-f0 = SE3([0 0 0 0 -pi/2 0]);
+% Set left and right radii
+lR = 2.197; % initial guess [m]
+rR = 1.833; % initial guess [m]
 
-% The first link (Boom yaw)
-l1 = SerialLink(f0, [q1 0 0], 1.005, 0.025);
+% TODO: Wrap the below lines in a loop over the state angles and save qHip in a
+% matrix indexed by the state angles
 
-% The second link (Boom roll)
-l2 = SerialLink(l1.h1f0, [0 0 pi/2-q2], 2.045, 0.05);
-
-% Rotate to align with the torso (Torso pitch)
-l3 = SerialLink(l2.h1f0, [pi+q3 0 0], 0, 0);
-
-% Fourth link (Torso)
-l4 = SerialLink(l3.h1f0, [0 0 -pi+deg2rad(82.72)], 0.35, 0.17);
-
-% Right leg hip
-l5 = SerialLink(l4.h1f0, [0 0 q4], 0.183, 0.1);
-
-% Torso-Hip Connection point
-%p1 = SerialLink(l4.h1f0, [0 0 0], 0, 0);
-
-%% Visualize the links
-l1.plot
-l2.plot
-l4.plot
-
-% Plot settings
-% Make sure 1 unit is the same distance on each axis
-axis equal
-% Make the whole workspace visible
-dist = 6;
-xlim([-dist/2 dist/2])
-ylim([-dist/2 dist/2])
-zlim([-0.1 2.0])
-% Set the viewpoint
-view([-37.5,10])
-
-% Get link center functions
-g1  = l1.plotFun;
-g2  = l2.plotFun;
-g4  = l4.plotFun;
-%gp1 = p1.plotFun;
-
-% Show how things are oriented
-% Set angles
+% Angles
 q1 = 0; % Boom yaw
 q2 = 0.1; % Boom roll
-q3 = 0.2; % Torso pitch
+q3 = 0.2; % Boom pitch
+%q4 = 0; % Right hip angle
+q5 = 3*pi/4; % Right leg A
+q6 = 5*pi/4; % Right leg B
+%q7 = 0; % Left hip angle
+q8 = 3*pi/4; % Left leg A
+q9 = 5*pi/4; % Left leg B
+syms q4 q7 real; % The hip angles are unknown
 
-% First boom link
-l1.plotObj(g1(q1));
-% Second boom link
-l2.plotObj(g2(q1,q2));
-% Torso
-l4.plotObj(g4(q1,q2,q3));
+% Left toe
+% Get equations for the toe position in terms of the hip angle
+lXyz = lToeXyz(q1,q2,q3,q7,q8,q9);
+rXyz = rToeXyz(q1,q2,q3,q4,q5,q6);
 
-% Show coordinates
-l1.showCoord(g1(q1));
-l2.showCoord(g2(q1,q2));
-l4.showCoord(g4(q1,q2,q3));
+% Constrain the toe to a cylinder (x^2+y^2=r^2)
+lEqn = matlabFunction(lXyz(1)^2 + lXyz(2)^2 - lR^2);
+rEqn = matlabFunction(rXyz(1)^2 + rXyz(2)^2 - rR^2);
 
-%% Plot points
-%gp1 = SE3(gp1(q1,q2,q3));
-%gp1 = gp1.xyz;
-%plot3(gp1(1),gp1(2),gp1(3),'-mo','MarkerSize',15)
-%
-%% Point equations
-%p1xyz = p1.g1f0.xyz;
-
-% Draw the figure
-drawnow
+% Numerically solve for the hip angles
+qLHip = fsolve(lEqn,0);
+qRHip = fsolve(lEqn,0);
