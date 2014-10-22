@@ -9,7 +9,7 @@ lR = 2.197; % initial guess [m]
 rR = 1.833; % initial guess [m]
 
 % Angle and length discritization
-angleD = deg2rad(3); % [rad]
+angleD = deg2rad(1); % [rad]
 linD   = 0.01; % [m]
 
 % Angle ranges
@@ -19,8 +19,7 @@ q3 = linspace(-pi/4, pi/4, floor((pi/4+pi/4)/angleD)); % Boom pitch
 % Virtual leg length and angle
 ql = linspace(0.4, 0.99, floor((0.99-0.4)/angleD));
 qq = linspace(pi/2, 3*pi/2, floor((3*pi/2-pi/2)/linD));
-% Unknown right and left hip angles (respectively)
-%syms q4 q7 real;
+% q4, q7: Unknown right and left hip angles (respectively)
 
 % Preallocate qHip
 qLHip = NaN(length(q2),length(q3),length(ql),length(qq));
@@ -28,6 +27,8 @@ qRHip = NaN(length(q2),length(q3),length(ql),length(qq));
 
 % fmincon options
 options = optimoptions('fmincon','Display','notify-detailed');
+
+
 
 % Iterate over the states
 tic
@@ -51,8 +52,8 @@ for qqi = 1:length(qq) % Virtual leg angle
     q9 = q6; % Left leg B
 
     % Numerically solve for the hip angles given bounds
-    qLHipTemp(qli,qqi) = fmincon(@(q7)lHipEquation(q7),0,[1;-1],[pi/2 pi/2],[],[],[],[],[],options);
-    qRHipTemp(qli,qqi) = fmincon(@(q4)rHipEquation(q4),0,[1;-1],[pi/2 pi/2],[],[],[],[],[],options);
+    qLHipTemp(qli,qqi) = fmincon(@(q7)lHipEquation(q1,q2(q2i),q3(q3i),q7,q8,q9,lToeXyz,lR),0,[1;-1],[pi/2 pi/2],[],[],[],[],[],options);
+    qRHipTemp(qli,qqi) = fmincon(@(q4)rHipEquation(q1,q2(q2i),q3(q3i),q4,q5,q6,rToeXyz,rR),0,[1;-1],[pi/2 pi/2],[],[],[],[],[],options);
 
 end % Virtual leg angle
 end % Virtual leg length
@@ -64,16 +65,21 @@ qRHip(q2i,q3i,:,:) = qRHipTemp;
 end % Boom pitch
 end % Boom roll
 
-function lDelta = lHipEquation(q7)
+
+% Save the hip angles, the states that were iterated over, and the constraint radii
+save('data/toeConstraint.mat',qLHip,qRHip,q1,q2,q3,ql,qq,lR,rR)
+
+
+function lDelta = lHipEquation(x1,x2,x3,x7,x8,x9,lToeXyz,lR)
     % Solve for the xyz foot placement
-    lXyz = lToeXyz(q1,q2(q2i),q3(q3i),q7,q8,q9);
+    lXyz = lToeXyz(x1,x2,x3,x7,x8,x9);
     % Solve for how far away the foot is from the cylinder constraint (x^2+y^2=r^2)
     lDelta = (lXyz(1)^2 + lXyz(2)^2 - lR^2)^2;
 end
 
-function rDelta = rHipEquation(q4)
+function rDelta = rHipEquation(x1,x2,x3,x4,x5,x6,rToeXyz,rR)
     % Solve for the xyz foot placement
-    rXyz = rToeXyz(q1,q2(q2i),q3(q3i),q4,q5,q6);
+    rXyz = rToeXyz(x1,x2,x3,x4,x5,x6);
     % Solve for how far away the foot is from the cylinder constraint (x^2+y^2=r^2)
     rDelta = (rXyz(1)^2 + rXyz(2)^2 - rR^2)^2;
 end
