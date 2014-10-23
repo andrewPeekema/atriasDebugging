@@ -9,16 +9,18 @@ lR = 2.197; % initial guess [m]
 rR = 1.833; % initial guess [m]
 
 % Angle and length discritization
-angleD = deg2rad(1); % [rad]
+angleD = deg2rad(3); % [rad]
 linD   = 0.01; % [m]
+% Note: ~10.4 hours for 1 deg, 1 cm
+% Note: ~15 minutes for 3 deg, 1 cm
 
 % Angle ranges
 q1 = 0; % Boom yaw
 q2 = linspace(0, 0.2, floor((0.2-0)/angleD)); % Boom roll
 q3 = linspace(-pi/4, pi/4, floor((pi/4+pi/4)/angleD)); % Boom pitch
 % Virtual leg length and angle
-ql = linspace(0.4, 0.99, floor((0.99-0.4)/angleD));
-qq = linspace(pi/2, 3*pi/2, floor((3*pi/2-pi/2)/linD));
+ql = linspace(0.4, 0.98, floor((0.98-0.4)/linD));
+qq = linspace(1.8, 4.5, floor((4.5-1.8)/angleD));
 % q4, q7: Unknown right and left hip angles (respectively)
 
 % Preallocate qHip
@@ -67,7 +69,7 @@ end % Boom roll
 
 
 % Save the hip angles, the states that were iterated over, and the constraint radii
-save('data/toeConstraint.mat',qLHip,qRHip,q1,q2,q3,ql,qq,lR,rR)
+save('data/toeConstraint.mat','qLHip','qRHip','q1','q2','q3','ql','qq','lR','rR')
 
 
 function lDelta = lHipEquation(x1,x2,x3,x7,x8,x9,lToeXyz,lR)
