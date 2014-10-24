@@ -12,28 +12,29 @@ close all
 % Where a, b, c, d are the 4 inputs
 % 0, 1, and 2 are the lower, upper, and desired points respectively
 
-% Boundaries
-xyz0 = [0 0 0];
-xyz1 = [2 3 5];
-
-% Filler values
+% Variable ranges
 x = [0 2];
-y = [0 3];
+y = [-3 3];
 z = [0 5];
+% Filler values
 values = NaN(length(x),length(y),length(z));
-for xi = x
-for yi = y
-for zi = z
-    values(xi,yi,zi) = rand*10;
+for xi = 1:length(x)
+for yi = 1:length(y)
+for zi = 1:length(z)
+    values(xi,yi,zi) = 10;
 end
 end
 end
 
 % Target point
-x2 = 1;
-y2 = 1.4;
-z2 = 4.2;
+I = [1 1.4 4.2];
 
+% Calculate boundary points from target point
+xyz0 = lowerBoundary(I,x,y,z);
+xyz1 = upperBoundary(I,x,y,z);
+
+% TODO: Generate point permutations
+% TODO: Find point and opposite point
 % Points
 A = xyz0*[1 1 0] + xyz1*[0 0 1];
 B = xyz0*[1 0 0] + xyz1*[0 1 1];
@@ -44,7 +45,7 @@ F = xyz0*[1 0 1] + xyz1*[0 1 0];
 G = xyz0*[0 1 1] + xyz1*[1 0 0];
 H = xyz0*[0 0 1] + xyz1*[1 1 0];
 
-I = [x2 y2 z2];
+return % Debugging
 
 % Normalized hypervolumes
 Na = hypervolume(H,I)/hypervolume(E,D);
@@ -56,7 +57,15 @@ Nf = hypervolume(C,I)/hypervolume(E,D);
 Ng = hypervolume(B,I)/hypervolume(E,D);
 Nh = hypervolume(A,I)/hypervolume(E,D);
 
-v8 = v0*Na + v1*Nb + v2*Nc + v3*Nd + v4*Ne + v5*Nf + v6*Ng + v7*Nh;
+% Calculate values
+interpVal = pointToValue(A)*Na + ...
+            pointToValue(B)*Nb + ...
+            pointToValue(C)*Nc + ...
+            pointToValue(D)*Nd + ...
+            pointToValue(E)*Ne + ...
+            pointToValue(F)*Nf + ...
+            pointToValue(G)*Ng + ...
+            pointToValue(H)*Nh;
 
 %{
 % The hip angle data
@@ -75,7 +84,32 @@ for n = 1:29
 end
 %}
 
-% TODO: Test this function
+function p = pointMasher(p1,p2,pI)
+    % Combine two points based on pI, where pI are the points of p2 to use
+    % TODO: Finish this
+    %p = p1
+end
+
+function p = upperBoundary(p,Rx,Ry,Rz)
+    % Find the point indices
+    xi = sum(Rx < p(1));
+    yi = sum(Ry < p(2));
+    zi = sum(Rz < p(3));
+
+    % Get the point
+    p = [Rx(xi+1) Ry(yi+1) Rz(zi+1)];
+end % pointToValue
+
+function p = lowerBoundary(p,Rx,Ry,Rz)
+    % Find the point indices
+    xi = sum(Rx < p(1));
+    yi = sum(Ry < p(2));
+    zi = sum(Rz < p(3));
+
+    % Get the point
+    p = [Rx(xi) Ry(yi) Rz(zi)];
+end % pointToValue
+
 function value = pointToValue(p,values,Rx,Ry,Rz)
     % Find the point indices
     p1i = sum(Rx <= p(1));
