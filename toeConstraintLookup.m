@@ -1,71 +1,79 @@
-function toeConstraintLookup
-% Create a lookup table for the hip angle
+function interpVal = toeConstraintLookup
+% A linear interpolation function for 3 dimensions
 % Can't use interpn because matlab coder doesn't support it
-
-% Cleanup
-clc
-clear all
-close all
-
-% 4D Linear Interpolation
-% Formula from: http://bmia.bmt.tue.nl/people/BRomeny/Courses/8C080/Interpolation.pdf
-% Where a, b, c, d are the 4 inputs
-% 0, 1, and 2 are the lower, upper, and desired points respectively
+% Interpolation formula from:
+% http://bmia.bmt.tue.nl/people/BRomeny/Courses/8C080/Interpolation.pdf
 
 % Variable ranges
-x = [0 2];
-y = [-3 3];
-z = [0 5];
+Rx = [0:0.5:2];
+Ry = [0:0.5:2];
+Rz = [0:0.5:2];
+
 % Filler values
-values = NaN(length(x),length(y),length(z));
-for xi = 1:length(x)
-for yi = 1:length(y)
-for zi = 1:length(z)
-    values(xi,yi,zi) = 10;
+values = NaN(length(Rx),length(Ry),length(Rz));
+for xi = 1:length(Rx)
+for yi = 1:length(Ry)
+for zi = 1:length(Rz)
+    values(xi,yi,zi) = 15;
 end
 end
 end
 
 % Target point
-I = [1 1.4 4.2];
+I = [1 1.2 0.7];
 
-% Calculate boundary points from target point
-xyz0 = lowerBoundary(I,x,y,z);
-xyz1 = upperBoundary(I,x,y,z);
+% Bound the target point to the variable range
+I(1) = max(I(1),Rx(1));   % Lower bound
+I(1) = min(I(1),Rx(end)); % Upper bound
+I(2) = max(I(2),Ry(1));   % Lower bound
+I(2) = min(I(2),Ry(end)); % Upper bound
+I(3) = max(I(3),Rz(1));   % Lower bound
+I(3) = min(I(3),Rz(end)); % Upper bound
 
-% TODO: Generate point permutations
-% TODO: Find point and opposite point
-% Points
-A = xyz0*[1 1 0] + xyz1*[0 0 1];
-B = xyz0*[1 0 0] + xyz1*[0 1 1];
-C = xyz0*[0 1 0] + xyz1*[1 0 1];
-D = xyz0*[0 0 0] + xyz1*[1 1 1];
-E = xyz0*[1 1 1] + xyz1*[0 0 0];
-F = xyz0*[1 0 1] + xyz1*[0 1 0];
-G = xyz0*[0 1 1] + xyz1*[1 0 0];
-H = xyz0*[0 0 1] + xyz1*[1 1 0];
+% Calculate the upper and lower bounding points given the target point
+% Find the lower point
+xi = sum(Rx <= I(1));
+yi = sum(Ry <= I(2));
+zi = sum(Rz <= I(3));
+% Bound these points to one less than the maximum vector length
+xi = min(xi,length(Rx)-1);
+yi = min(yi,length(Ry)-1);
+zi = min(zi,length(Rz)-1);
+xyz0 = [Rx(xi) Ry(yi) Rz(zi)];
+% The upper point
+xyz1 = [Rx(xi+1) Ry(yi+1) Rz(zi+1)];
 
-return % Debugging
+% Generate bounding hypercube points
+nPoints = 0;
+for i1 = 0:1
+for i2 = 0:1
+for i3 = 0:1
+    % Increment the number of points
+    nPoints = nPoints + 1;
+    % Find the point combination
+    pointCombo(nPoints,:) = [i1 i2 i3];
+    % Find the point values
+    points(nPoints,:) = pointMash(xyz0,xyz1,pointCombo(nPoints,:));
+end
+end
+end
 
-% Normalized hypervolumes
-Na = hypervolume(H,I)/hypervolume(E,D);
-Nb = hypervolume(G,I)/hypervolume(E,D);
-Nc = hypervolume(F,I)/hypervolume(E,D);
-Nd = hypervolume(E,I)/hypervolume(E,D);
-Ne = hypervolume(D,I)/hypervolume(E,D);
-Nf = hypervolume(C,I)/hypervolume(E,D);
-Ng = hypervolume(B,I)/hypervolume(E,D);
-Nh = hypervolume(A,I)/hypervolume(E,D);
-
-% Calculate values
-interpVal = pointToValue(A)*Na + ...
-            pointToValue(B)*Nb + ...
-            pointToValue(C)*Nc + ...
-            pointToValue(D)*Nd + ...
-            pointToValue(E)*Ne + ...
-            pointToValue(F)*Nf + ...
-            pointToValue(G)*Ng + ...
-            pointToValue(H)*Nh;
+% Generate the interpolated value based on the bounding points weighted by
+% their opposing hypervolumes
+interpVal = 0;
+totalHypervolume = hypervolume(xyz0,xyz1)
+% For each point
+for n = 1:nPoints
+    % Find the normalized hypervolume
+    pointHypervolume = hypervolume(points(n,:),I)
+    % Normalize the hypervolume
+    nHypervolume = pointHypervolume/totalHypervolume;
+    % Find the point opposite the current point
+    oppositePointCombo = ~pointCombo(n,:);
+    oppositePoint = pointMash(xyz0,xyz1,oppositePointCombo);
+    % Weight the point value based on the hypervolume
+    interpVal = interpVal + pointToValue(oppositePoint,values,Rx,Ry,Rz)*nHypervolume;
+end
 
 %{
 % The hip angle data
@@ -84,31 +92,10 @@ for n = 1:29
 end
 %}
 
-function p = pointMasher(p1,p2,pI)
+function p = pointMash(p1,p2,pI)
     % Combine two points based on pI, where pI are the points of p2 to use
-    % TODO: Finish this
-    %p = p1
+    p = p1.*~pI + p2.*pI;
 end
-
-function p = upperBoundary(p,Rx,Ry,Rz)
-    % Find the point indices
-    xi = sum(Rx < p(1));
-    yi = sum(Ry < p(2));
-    zi = sum(Rz < p(3));
-
-    % Get the point
-    p = [Rx(xi+1) Ry(yi+1) Rz(zi+1)];
-end % pointToValue
-
-function p = lowerBoundary(p,Rx,Ry,Rz)
-    % Find the point indices
-    xi = sum(Rx < p(1));
-    yi = sum(Ry < p(2));
-    zi = sum(Rz < p(3));
-
-    % Get the point
-    p = [Rx(xi) Ry(yi) Rz(zi)];
-end % pointToValue
 
 function value = pointToValue(p,values,Rx,Ry,Rz)
     % Find the point indices
@@ -126,8 +113,10 @@ function V = hypervolume(p1,p2)
 
     % Find the volume
     V = 1;
+    % For each point index
     for a = 1:n
-        V = V*abs(p1(a)-p2(a))
+        % Generate the volume
+        V = V*abs(p1(a)-p2(a));
     end
 end % hypervolume
 
