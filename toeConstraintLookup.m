@@ -6,16 +6,16 @@ clear all
 close all
 
 % Variable ranges
-Rx = [0:0.5:10];
-Ry = [0:0.5:10];
-Rz = [0:0.5:10];
+R1 = [0:0.5:10];
+R2 = [0:0.5:10];
+R3 = [0:0.5:10];
 
 % Filler values
-values = NaN(length(Rx),length(Ry),length(Rz));
-for xi = 1:length(Rx)
-for yi = 1:length(Ry)
-for zi = 1:length(Rz)
-    values(xi,yi,zi) = 20;
+values = NaN(length(R1),length(R2),length(R3));
+for ia = 1:length(R1)
+for ib = 1:length(R2)
+for ic = 1:length(R3)
+    values(ia,ib,ic) = 25;
 end
 end
 end
@@ -24,7 +24,7 @@ end
 I = [1 1.2 0.7];
 
 % Get the interpolated value
-value = linInterp4(I,values,Rx,Ry,Rz)
+value = linInterp4(I,values,R1,R2,R3)
 
 %{
 % The hip angle data

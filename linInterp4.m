@@ -1,34 +1,33 @@
-function interpVal = linInterp4(I,values,Rx,Ry,Rz)
+function interpVal = linInterp4(I,values,R1,R2,R3)
 % A linear interpolation function for 4 dimensions
 % Can't use interpn because matlab coder doesn't support it
 % Interpolation formula from:
 % http://bmia.bmt.tue.nl/people/BRomeny/Courses/8C080/Interpolation.pdf
 % Input
 %   I: Target point
-%   values: Matrix of values
-%   Rx, Ry, Rz: Ranges that the values matrix covers
-%   % point = values(x,y,z)
+%   values: Matrix of values with the same dimensions as the ranges
+%   R1, R2, R3: Ranges that the values matrix covers
 
 % Bound the target point to the variable range
-I(1) = max(I(1),Rx(1));   % Lower bound
-I(1) = min(I(1),Rx(end)); % Upper bound
-I(2) = max(I(2),Ry(1));   % Lower bound
-I(2) = min(I(2),Ry(end)); % Upper bound
-I(3) = max(I(3),Rz(1));   % Lower bound
-I(3) = min(I(3),Rz(end)); % Upper bound
+I(1) = max(I(1),R1(1));   % Lower bound
+I(1) = min(I(1),R1(end)); % Upper bound
+I(2) = max(I(2),R2(1));   % Lower bound
+I(2) = min(I(2),R2(end)); % Upper bound
+I(3) = max(I(3),R3(1));   % Lower bound
+I(3) = min(I(3),R3(end)); % Upper bound
 
 % Calculate the upper and lower bounding points given the target point
 % Find the lower point
-xi = sum(Rx <= I(1));
-yi = sum(Ry <= I(2));
-zi = sum(Rz <= I(3));
+ia = sum(R1 <= I(1));
+ib = sum(R2 <= I(2));
+ic = sum(R3 <= I(3));
 % Bound these points to one less than the maximum vector length
-xi = min(xi,length(Rx)-1);
-yi = min(yi,length(Ry)-1);
-zi = min(zi,length(Rz)-1);
-xyz0 = [Rx(xi) Ry(yi) Rz(zi)];
+ia = min(ia,length(R1)-1);
+ib = min(ib,length(R2)-1);
+ic = min(ic,length(R3)-1);
+lowerPoint = [R1(ia) R2(ib) R3(ic)];
 % The upper point
-xyz1 = [Rx(xi+1) Ry(yi+1) Rz(zi+1)];
+upperPoint = [R1(ia+1) R2(ib+1) R3(ic+1)];
 
 % Generate bounding hypercube points
 nPoints = 0;
@@ -40,7 +39,7 @@ for i3 = 0:1
     % Find the point combination
     pointCombo(nPoints,:) = [i1 i2 i3];
     % Find the point values
-    points(nPoints,:) = pointMash(xyz0,xyz1,pointCombo(nPoints,:));
+    points(nPoints,:) = pointMash(lowerPoint,upperPoint,pointCombo(nPoints,:));
 end
 end
 end
@@ -48,7 +47,7 @@ end
 % Generate the interpolated value based on the bounding points weighted by
 % their opposing hypervolumes
 interpVal = 0;
-totalHypervolume = hypervolume(xyz0,xyz1);
+totalHypervolume = hypervolume(lowerPoint,upperPoint);
 % For each point
 for n = 1:nPoints
     % Find the normalized hypervolume
@@ -57,9 +56,9 @@ for n = 1:nPoints
     nHypervolume = pointHypervolume/totalHypervolume;
     % Find the point opposite the current point
     oppositePointCombo = ~pointCombo(n,:);
-    oppositePoint = pointMash(xyz0,xyz1,oppositePointCombo);
+    oppositePoint = pointMash(lowerPoint,upperPoint,oppositePointCombo);
     % Weight the point value based on the hypervolume
-    interpVal = interpVal + pointToValue(oppositePoint,values,Rx,Ry,Rz)*nHypervolume;
+    interpVal = interpVal + pointToValue(oppositePoint,values,R1,R2,R3)*nHypervolume;
 end
 
 
@@ -68,11 +67,11 @@ function p = pointMash(p1,p2,pI)
     p = p1.*~pI + p2.*pI;
 end
 
-function value = pointToValue(p,values,Rx,Ry,Rz)
+function value = pointToValue(p,values,R1,R2,R3)
     % Find the point indices
-    p1i = sum(Rx <= p(1));
-    p2i = sum(Ry <= p(2));
-    p3i = sum(Rz <= p(3));
+    p1i = sum(R1 <= p(1));
+    p2i = sum(R2 <= p(2));
+    p3i = sum(R3 <= p(3));
 
     % Get the value
     value = values(p1i,p2i,p3i);
