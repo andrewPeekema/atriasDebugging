@@ -14,7 +14,20 @@ close all
 
 % Boundaries
 xyz0 = [0 0 0];
-xyy1 = [2 3 5];
+xyz1 = [2 3 5];
+
+% Filler values
+x = [0 2];
+y = [0 3];
+z = [0 5];
+values = NaN(length(x),length(y),length(z));
+for xi = x
+for yi = y
+for zi = z
+    values(xi,yi,zi) = rand*10;
+end
+end
+end
 
 % Target point
 x2 = 1;
@@ -61,6 +74,17 @@ for n = 1:29
     pause(0.1)
 end
 %}
+
+% TODO: Test this function
+function value = pointToValue(p,values,Rx,Ry,Rz)
+    % Find the point indices
+    p1i = sum(Rx <= p(1));
+    p2i = sum(Ry <= p(2));
+    p3i = sum(Rz <= p(3));
+
+    % Get the value
+    value = values(p1i,p2i,p3i);
+end % pointToValue
 
 function V = hypervolume(p1,p2)
     % p1, p2: points with n dimensions
