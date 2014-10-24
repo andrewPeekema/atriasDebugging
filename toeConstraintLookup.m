@@ -5,6 +5,7 @@ clc
 clear all
 close all
 
+%{
 % Variable ranges
 R1 = [0:0.5:1];
 R2 = [0:0.5:10];
@@ -28,20 +29,24 @@ I = [1 1.2 0.7 3.1];
 
 % Get the interpolated value
 value = linInterp4(I,values,R1,R2,R3,R4)
+%}
 
-%{
 % The hip angle data
 load('data/toeConstraint.mat')
+
+% The current state
+% state = [q2 q3 ql qq]
+%state = [0.055 0.55 0.8 2.5];
+state = [q2(2) q3(15) 0.8 2.5];
 
 % Plot
 % data structure: qHip(q2,q3,ql,qq)
 % Size: 3 29 11 314
-for n = 1:29
-    surf(qq,ql,squeeze(qLHip(1,n,:,:)))
-    xlabel('qq')
-    ylabel('ql')
-    zlabel('qHip')
-    drawnow
-    pause(0.1)
-end
-%}
+%for n = 1:29
+%    surf(qq,ql,squeeze(qLHip(1,n,:,:)))
+%    xlabel('qq')
+%    ylabel('ql')
+%    zlabel('qHip')
+%    drawnow
+%    pause(0.1)
+%end
