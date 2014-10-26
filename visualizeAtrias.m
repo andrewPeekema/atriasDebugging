@@ -1,18 +1,19 @@
-% Play back the kinematic data from an ATRIAS logfile
+function visualizeAtrias(Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9,statesToShow)
+% Plot ATRIAS kinematic data
+% Input:
+%    Q1: Boom yaw [rad] (nominal: 0)
+%    Q2: Boom roll [rad] (nominal: ~0.1)
+%    Q3: Boom pitch [rad] (nominal: 0)
+%    Q4: Right hip angle [rad] (nominal: 0)
+%    Q5: Right leg A [rad] (nominal: 3*pi/4)
+%    Q6: Right leg B [rad] (nominal: 5*pi/4)
+%    Q7: Left hip angle [rad] (nominal: 0)
+%    Q8: Left leg A [rad] (nominal: 3*pi/4)
+%    Q9: Left leg B [rad] (nominal: 5*pi/4)
+%    statesToShow: The Q vector indicies to visualize
+% Output: 3-D plot of ATRIAS
 
-% Cleanup
-close all
-clear all
-clc
-
-% The logfile to analyze
-%filePath = '/Users/andrew/Desktop/VPP Analysis/atrias_2014-05-08-10-55-45.mat';
-%[c rs] = logfileToStruct(filePath);
-%rs = shortenData(rs,[39440:73270]); % Walking
-%rs = shortenData(rs,[68690:73270]); % Falling
-
-
-%% Generate the kinematics
+% Generate the kinematics
 display('Generating the forward kinematics...')
 syms q1 q2 q3 q4 q5 q6 q7 q8 q9 real
 % The origin (x pointing "up" along the boom support)
@@ -93,21 +94,18 @@ g14 = l14.plotFun;
 g15 = l15.plotFun;
 g16 = l16.plotFun;
 
-% Step this many ms per frame
-frameStep = 15;
-
 % Iterate over the states
-%for it = 1:frameStep:length(rs.time)
+for it = 1:length(statesToShow)
     % Angles
-    q1 = 0; % Boom yaw
-    q2 = 0.1; % Boom roll
-    q3 = 0.2; % Boom pitch
-    q4 = 0; % Right hip angle
-    q5 = 3*pi/4; % Right leg A
-    q6 = 5*pi/4; % Right leg B
-    q7 = 0; % Left hip angle
-    q8 = 3*pi/4; % Left leg A
-    q9 = 5*pi/4; % Left leg B
+    q1 = Q1(it); % Boom yaw
+    q2 = Q2(it); % Boom roll
+    q3 = Q3(it); % Boom pitch
+    q4 = Q4(it); % Right hip angle
+    q5 = Q5(it); % Right leg A
+    q6 = Q6(it); % Right leg B
+    q7 = Q7(it); % Left hip angle
+    q8 = Q8(it); % Left leg A
+    q9 = Q9(it); % Left leg B
 
     % Plot links
     % First boom link
@@ -125,19 +123,21 @@ frameStep = 15;
     l9.plotObj(g9(q1,q2,q3,q4,q6));
     l10.plotObj(g10(q1,q2,q3,q4,q5,q6));
     % The toe
-    %l10.traceEnd(g10(q1,q2,q3,q4,q5,q6),'.r');
+    l8.traceEnd(g8(q1,q2,q3,q4,q5,q6),'.r');
 
     % Left hip link
     l11.plotObj(g11(q1,q2,q3,q7));
-    l11.showCoord(g11(q1,q2,q3,q7));
     % Left leg links
     l13.plotObj(g13(q1,q2,q3,q7,q8));
     l14.plotObj(g14(q1,q2,q3,q7,q8,q9));
     l15.plotObj(g15(q1,q2,q3,q7,q9));
     l16.plotObj(g16(q1,q2,q3,q7,q8,q9));
     % The toe
-    %l16.traceEnd(g16(q1,q2,q3,q7,q8,q9),'.b');
+    l14.traceEnd(g14(q1,q2,q3,q7,q8,q9),'.b');
 
     % Draw the figure
     drawnow
-%end % for it
+    pause(0.1)
+end % for it
+
+end % visualizeAtrias

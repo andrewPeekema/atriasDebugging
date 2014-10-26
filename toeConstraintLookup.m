@@ -8,29 +8,36 @@ close all
 % The hip angle data
 load('data/toeConstraint.mat')
 
-% The current state
-% state = [q2 q3 ql qq]
-%state = [0.055 0.55 0.8 2.5];
-%state = [q2(2) q3(15) 0.8 2.5];
-
 % Plot
-% data structure: qHip(q2,q3,ql,qq)
-% Size: 3 29 11 314
-for n = 1:29
-%for n = 10
-    surf(qq,ql,squeeze(qLHip(1,n,:,:)))
+for n = 1:length(q3)
     % A point to interpolate to ([q2 q3 ql qq])
-    state = [q2(1) q3(n) 0.8 2.5];
-    % Get an interpolated value
-    qInterp = linInterp4(state,qLHip,q2,q3,ql,qq);
-    hold on
-    state(3)
-    state(4)
-    plot3(state(4), state(3), qInterp,'-mo','MarkerSize',15)
-    xlabel('qq')
-    ylabel('ql')
-    zlabel('qHip')
-    drawnow
-    hold off
-    pause(0.1)
+    state = [0.05 q3(n) 0.8 pi];
+    % Get interpolated hip values
+    q4Interp(n) = linInterp4(state,qRHip,q2,q3,ql,qq);
+    q7Interp(n) = linInterp4(state,qLHip,q2,q3,ql,qq);
+    % Save the states
+    q5(n) = state(4) - acos(state(3));
+    q6(n) = state(4) + acos(state(3));
+    q8(n) = q5(n);
+    q9(n) = q6(n);
 end
+
+% Plot the virtual constraints
+% Left foot
+r = lR;
+x = -r:0.001:r;
+y = (r^2-x.^2).^0.5;
+x = [x  flip(x)];
+y = [y -y];
+plot3(x,y,0*x,'c');
+hold on
+% Right foot
+r = rR;
+x = -r:0.001:r;
+y = (r^2-x.^2).^0.5;
+x = [x  flip(x)];
+y = [y -y];
+plot3(x,y,0*x,'m');
+
+% Make ATRIAS move through the states
+visualizeAtrias(zeros(size(q3)),state(1)*ones(size(q3)),q3,q4Interp,q5,q6,q7Interp,q8,q9,1:length(q3))
