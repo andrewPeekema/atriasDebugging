@@ -9,7 +9,16 @@ g = 9.81; % m/s^2
 
 % Power
 supplyCurrent = a.Electrics.measuredCurrent(:,1); % (A)
-supplyVoltage = a.Electrics.lHipMotorVoltage;     % (V)
+
+ % If there is a direct measurement of the supply voltage
+if isfield(a.Electrics, 'lHipMotorVoltage')
+    % Use that
+    supplyVoltage = a.Electrics.lHipMotorVoltage; % (V)
+% Otherwise, aproximate using motor voltages
+else
+    supplyVoltage = mean(a.Electrics.motorVoltage(:,[1 2 4]),2); % (V)
+end
+
 power = supplyCurrent.*supplyVoltage;               % (W)
 
 % Cost of Transport
