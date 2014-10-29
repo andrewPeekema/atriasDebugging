@@ -110,7 +110,7 @@ stats.vApexStd   = std([vLApex vRApex]);
 
 
 %% VLO Energy
-addpath('./..') % for legForce()
+addpath('./../controllerFunctions') % for legForce()
 % E = KE + PEg + PEs
 % E = 1/2*m*v^2 + m*g*h + 1/2*k*Dx^2
 

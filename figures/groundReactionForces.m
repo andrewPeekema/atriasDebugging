@@ -22,10 +22,10 @@ ylabel('Force (N)')
 ylim([-200 690])
 
 % The range of values to plot
-%xStart = 92.23;
-%xEnd   = 93.95;
-xStart = a.Timing.Time(1)/1000;
-xEnd = a.Timing.Time(end)/1000;
+%xStart = a.Timing.Time(1)/1000;
+%xEnd = a.Timing.Time(end)/1000;
+xStart = a.Timing.Time(1)/1000+7.231;
+xEnd = a.Timing.Time(1)/1000+9.357;
 xlim([0 xEnd-xStart])
 
 
@@ -82,9 +82,14 @@ for leg = [1 2] % left and right legs
         Fx = -Fx;
         Fz = -Fz;
 
-        % Plot the forces
-        plot(t-xStart,Fx,'r')
-        plot(t-xStart,Fz,'b')
+        % Plot forces in the horizontal and vertical direction
+        if leg == 1 % Left leg
+            plot(t-xStart,Fx,'r')
+            plot(t-xStart,Fz,'b')
+        else % Right leg
+            plot(t-xStart,Fx,'--r')
+            plot(t-xStart,Fz,'--b')
+        end
     end
 end % for leg
 
