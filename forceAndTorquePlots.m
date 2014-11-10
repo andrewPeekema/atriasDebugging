@@ -38,8 +38,10 @@ figure
 plot(rs.time,rs.lADfl*c.ks,'r.')
 hold on
 plot(rs.time,rs.lBDfl*c.ks,'b.')
+title('Left Leg Spring Torques')
 
 figure
 plot(rs.time,rs.rADfl*c.ks,'r.')
 hold on
 plot(rs.time,rs.rBDfl*c.ks,'b.')
+title('Right Leg Spring Torques')

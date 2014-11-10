@@ -79,8 +79,8 @@ rs.cmdRB = state(:,27);
 rs.cmdRH = state(:,29);
 
 % Toe Sensors
-rs.lToe = state(:,33); % TODO: Check the L/R convention
-rs.rToe = state(:,34); % TODO: Check the L/R convention
+rs.rToe = state(:,33);
+rs.lToe = state(:,34);
 
 % Boom data
 rs.bR  = state(:,11);
