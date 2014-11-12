@@ -6,7 +6,7 @@ syms q1 q2 real
 %A = [0.5*S -0.5*S;
 %     0.5    0.5];
 %
-%% Polar coordinates
+%% Motor to polar coordinates
 %ql = (q1+q2)/2;
 %l  = cos((q2-q1)/2);
 %% Jacobian for polar to cartesean coordinates
