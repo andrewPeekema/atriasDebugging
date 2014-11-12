@@ -6,11 +6,11 @@ close all
 clc
 
 % The logfile to analyze
-filePath = './data/siavashWalking-11-7-2014.mat';
+filePath = './data/siavashWalking-11-11-2014.mat';
 [c rs] = logfileToStruct(filePath);
 
 % Shorten the data
-rs = shortenData(rs,[167634:200759]);
+%rs = shortenData(rs,[167634:200759]);
 
 % Make the filters
 lToeFilter = toeFilter(20,170);
