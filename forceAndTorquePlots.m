@@ -6,7 +6,7 @@ clear all
 clc
 
 % The logfile to analyze
-filePath = './data/siavashWalking2-11-11-2014-full-lap.mat';
+filePath = './data/siavashWalking3-11-11-2014-full-lap.mat';
 [c rs] = logfileToStruct(filePath);
 
 % Shorten the data
@@ -71,5 +71,21 @@ plot(rs.time,rs.cmdLB,'b')
 %plot(rs.time,rs.cmdRA)
 %plot(rs.time,rs.cmdRB)
 title('Commanded Torque')
+xlabel('Time (s)')
+ylabel('Torque (N*m)')
+
+% Motor torque to leg angle torque
+tauLq = ((rs.qLlA-rs.qLmA)+(rs.qLlB-rs.qLmB))*c.ks;
+tauRq = ((rs.qRlA-rs.qRmA)+(rs.qRlB-rs.qRmB))*c.ks;
+
+figure
+plot(rs.time,tauLq)
+title('Left Leg Angle Torque')
+xlabel('Time (s)')
+ylabel('Torque (N*m)')
+
+figure
+plot(rs.time,tauRq)
+title('Right Leg Angle Torque')
 xlabel('Time (s)')
 ylabel('Torque (N*m)')
