@@ -1,4 +1,4 @@
-function visualizeAtrias(Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9,statesToShow)
+function visualizeAtrias(Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9)
 % Plot ATRIAS kinematic data
 % Input:
 %    Q1: Boom yaw [rad] (nominal: 0)
@@ -10,7 +10,6 @@ function visualizeAtrias(Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9,statesToShow)
 %    Q7: Left hip angle [rad] (nominal: 0)
 %    Q8: Left leg A [rad] (nominal: 3*pi/4)
 %    Q9: Left leg B [rad] (nominal: 5*pi/4)
-%    statesToShow: The Q vector indicies to visualize
 % Output: 3-D plot of ATRIAS
 
 % Generate the kinematics
@@ -95,7 +94,7 @@ g15 = l15.plotFun;
 g16 = l16.plotFun;
 
 % Iterate over the states
-for it = 1:length(statesToShow)
+for it = 1:length(Q1)
     % Angles
     q1 = Q1(it); % Boom yaw
     q2 = Q2(it); % Boom roll
@@ -137,7 +136,7 @@ for it = 1:length(statesToShow)
 
     % Draw the figure
     drawnow
-    pause(0.1)
+    %pause(0.01)
 end % for it
 
 end % visualizeAtrias
