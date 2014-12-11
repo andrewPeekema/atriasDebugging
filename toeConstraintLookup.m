@@ -40,4 +40,4 @@ y = [y -y];
 plot3(x,y,0*x,'m');
 
 % Make ATRIAS move through the states
-visualizeAtrias(zeros(size(q3)),state(1)*ones(size(q3)),q3,q4Interp,q5,q6,q7Interp,q8,q9)
+visualizeAtrias(zeros(size(q3)),state(1)*ones(size(q3)),q3,q4Interp,q5,q6,q7Interp,q8,q9,0)
