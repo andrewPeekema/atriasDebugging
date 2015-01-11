@@ -5,11 +5,8 @@ close all
 clear all
 clc
 
-% The logfile to analyze
-filePath = '/Users/andrew/Desktop/atrias_2014-05-14-14-12-14.mat';
-[c rs cs] = logfileToStruct(filePath);
-
-rs = shortenData(rs,[32310:35800]);
+% The file to analyze
+loadFile
 
 % Start a figure
 figure

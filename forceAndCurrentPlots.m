@@ -5,9 +5,8 @@ close all
 clear all
 clc
 
-% The logfile to analyze
-filePath = '/Users/andrew/Desktop/atrias_2014-05-14-11-09-52.mat';
-[c rs cs] = logfileToStruct(filePath);
+% The file to analyze
+loadFile
 
 % Left leg
 controlF = hypot(cs.controlFxL,cs.controlFzL);

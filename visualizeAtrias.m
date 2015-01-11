@@ -5,12 +5,8 @@ close all
 clear all
 clc
 
-% The logfile to analyze
-filePath = '/Users/andrew/Desktop/VPP Analysis/atrias_2014-05-08-10-55-45.mat';
-[c rs] = logfileToStruct(filePath);
-rs = shortenData(rs,[39440:73270]); % Walking
-%rs = shortenData(rs,[68690:73270]); % Falling
-
+% The file to analyze
+loadFile
 
 %% Generate the kinematics
 display('Generating the forward kinematics...')

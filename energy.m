@@ -8,9 +8,8 @@ clc
 close all
 clear all
 
-% The logfile to analyze
-filePath = '/Users/andrew/Desktop/atrias_2014-05-08-10-55-45.mat';
-[c rs cs] = logfileToStruct(filePath);
+% The file to analyze
+loadFile
 
 %% Kenetic Energy
 v = hypot(rs.dx,rs.dz);

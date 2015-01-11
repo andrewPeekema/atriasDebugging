@@ -5,14 +5,8 @@ clc
 close all
 clear all
 
-% The logfile to analyze
-filePath = '/Users/andrew/Desktop/VPP Analysis/atrias_2014-05-08-10-55-45.mat';
-[c rs] = logfileToStruct(filePath);
-
-rs = shortenData(rs,[50000:54000]);
-%rs = shortenData(rs,[52100:53940]);
-%rs = shortenData(rs,[52480:53090]);
-
+% The file to analyze
+loadFile
 
 % Display the data
 figure
