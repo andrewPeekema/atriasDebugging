@@ -61,7 +61,7 @@ for leg = [1 2] % left and right legs
 
         % Plot each force vector
         for fn = 1:30:size(x1)
-            p(1) = plot([x1(fn) x2(fn)],[y1(fn) y2(fn)]);
+            p(1) = plot([x1(fn) x2(fn)],[y1(fn) y2(fn)],'b');
         end
 
         % Save the applied forces for determining the VPP later
