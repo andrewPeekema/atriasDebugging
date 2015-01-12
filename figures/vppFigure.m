@@ -18,6 +18,12 @@ figure
 % ATRIAS constant
 rcom = 0.12;
 
+% Initialize statistics
+rLeftStats = [];
+qLeftStats = [];
+rRightStats = [];
+qRightStats = [];
+
 for leg = [1 2] % left and right legs
     % Left leg on the left plot, right leg on the right
     subplot(1,2,leg)
@@ -61,7 +67,7 @@ for leg = [1 2] % left and right legs
 
         % Plot each force vector
         for fn = 1:30:size(x1)
-            p(1) = plot([x1(fn) x2(fn)],[y1(fn) y2(fn)],'b');
+            p(1) = plot([x1(fn) x2(fn)],[y1(fn) y2(fn)]-rcom,'b');
         end
 
         % Save the applied forces for determining the VPP later
@@ -92,11 +98,11 @@ for leg = [1 2] % left and right legs
 
         % Plot each force vector
         for fn = 1:30:size(x1)
-            p(2) = plot([x1(fn) x2(fn)],[y1(fn) y2(fn)],'g');
+            p(2) = plot([x1(fn) x2(fn)],[y1(fn) y2(fn)]-rcom,'g');
         end
 
         % Plot the first footpoint
-        plot(x1(1),y1(1),'r.')
+        plot(x1(1),y1(1)-rcom,'r.')
 
         % For debugging vpp per step
         % Determine the virtual pivot point from the applied forces
@@ -123,10 +129,14 @@ for leg = [1 2] % left and right legs
             display(['Left Leg r VPP (m): ' num2str(r)]);
             display(['Left Leg q VPP (deg): ' num2str(rad2deg(q))]);
             display(' ')
+            rLeftStats(end+1) = r;
+            qLeftStats(end+1) = q;
         else % right leg
             display(['Right Leg r VPP (m): ' num2str(r)]);
             display(['Right Leg q VPP (deg): ' num2str(rad2deg(q))]);
             display(' ')
+            rRightStats(end+1) = r;
+            qRightStats(end+1) = q;
         end
     end
 
@@ -136,13 +146,13 @@ for leg = [1 2] % left and right legs
     top = 0.508; % m
     x = [top/2 base/2 -base/2 -top/2 top/2];
     y = [height 0 0 height height];
-    plot(x,y,'--k')
+    plot(x,y-rcom,'--k')
     % Center of Mass
-    p(3) = plot(0,rcom,'.k','MarkerSize',40);
+    p(3) = plot(0,rcom-rcom,'.k','MarkerSize',40);
     % Virtual Pivot Point
     x = -a.ControllerData.rvpp(end)*sin(a.ControllerData.qvpp(end));
     y = rcom + a.ControllerData.rvpp(end)*cos(a.ControllerData.qvpp(end));
-    p(4) = plot(x,y,'.r','MarkerSize',40);
+    p(4) = plot(x,y-rcom,'.r','MarkerSize',40);
     % Feedback
     display(['Desired r VPP (m): ' num2str(a.ControllerData.rvpp(end))]);
     display(['Desired q VPP (deg): ' num2str(-rad2deg(a.ControllerData.qvpp(end)))]);
@@ -170,7 +180,7 @@ for leg = [1 2] % left and right legs
     guess = [x; y];
     vpp = fminsearch(@momentSquared,guess,options);
     % Plot the true vpp
-    p(5) = plot(vpp(1),vpp(2),'.g','MarkerSize',40);
+    p(5) = plot(vpp(1),vpp(2)-rcom,'.g','MarkerSize',40);
     % Feedback
     x = vpp(1);
     y = vpp(2)-rcom;
@@ -191,6 +201,20 @@ end % for leg
 
 % Labeling
 legend(p,'Applied Force','Desired Force','CoM','Desired VPP','True VPP','Location','Best')
+
+% Display statistics
+display(['Left Leg r mean:' num2str(mean(rLeftStats))])
+display(['Left Leg r std:' num2str(std(rLeftStats))])
+display(['Left Leg q mean:' num2str(mean(qLeftStats))])
+display(['Left Leg q std:' num2str(std(qLeftStats))])
+display(['Right Leg r mean:' num2str(mean(rRightStats))])
+display(['Right Leg r std:' num2str(std(rRightStats))])
+display(['Right Leg q mean:' num2str(mean(qRightStats))])
+display(['Right Leg q std:' num2str(std(qRightStats))])
+display(['r mean:' num2str(mean([rLeftStats rRightStats]))])
+display(['r std:' num2str(std([rLeftStats rRightStats]))])
+display(['q mean:' num2str(mean([qRightStats qLeftStats]))])
+display(['q std:' num2str(std([qRightStats qLeftStats]))])
 
 
 
