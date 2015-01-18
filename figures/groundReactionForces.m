@@ -19,13 +19,13 @@ grid on
 title('Ground Reaction Forces')
 xlabel('Time (s)')
 ylabel('Force (N)')
-ylim([-200 690])
+ylim([-200 700])
 
 % The range of values to plot
 xStart = a.Timing.Time(1)/1000;
 xEnd = a.Timing.Time(end)/1000;
-%xStart = a.Timing.Time(1)/1000+7.058;
-%xEnd = a.Timing.Time(1)/1000+8.259;
+%xStart = a.Timing.Time(1)/1000+4.905;
+%xEnd = a.Timing.Time(1)/1000+5.978;
 xlim([0 xEnd-xStart])
 
 
